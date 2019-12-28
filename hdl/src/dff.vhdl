@@ -21,10 +21,10 @@ architecture dff_arch of dff is
   begin
     clk_process : process(clk, resetn)
     begin
-      if rising_edge(clk) and resetn = '1' then
-        memory_signal <= d;
-      elsif resetn = '0' then
+      if resetn = '0' then
         memory_signal <= (others => '0');
+      elsif rising_edge(clk) then
+        memory_signal <= d;
       end if;
     end process clk_process ;
 

@@ -1,3 +1,5 @@
 # Elaboration folder
 ghdl/*
 !ghdl/makefile
+
+vivado/
