@@ -1,0 +1,33 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity dff is
+  generic (
+    Nbit : positive
+  );
+  port (
+    clk     : in std_logic;
+    resetn  : in std_logic;
+
+    d       : in std_logic_vector(Nbit - 1 downto 0);
+    q       : out std_logic_vector(Nbit - 1 downto 0)
+  );
+end entity dff;
+
+architecture dff_arch of dff is
+
+  signal memory_signal : std_logic_vector(Nbit - 1 downto 0);
+
+  begin
+    clk_process : process(clk, resetn)
+    begin
+      if rising_edge(clk) and resetn = '1' then
+        memory_signal <= d;
+      elsif resetn = '0' then
+        memory_signal <= (others => '0');
+      end if;
+    end process clk_process ;
+
+    q <= memory_signal;
+
+  end architecture dff_arch ;
