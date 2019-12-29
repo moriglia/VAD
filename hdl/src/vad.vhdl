@@ -80,10 +80,10 @@ architecture vad_rtl of vad is
   signal resetn   : std_logic;
 
   signal abs_repr           : std_logic_vector(15 downto 0);
-  signal square_power_repr  : std_logic_vector(33 downto 0);
-  signal sum_repr           : std_logic_vector(34 downto 0);
+  signal square_power_repr  : std_logic_vector(37 downto 0);
+  signal sum_repr           : std_logic_vector(38 downto 0);
 
-  constant threshold        : unsigned(34 downto 0) := "01100110011001100110011001100110011";
+  constant threshold        : unsigned(38 downto 0) := "000001100110011001100110011001100110011";
   signal voice_detected     : std_logic;
 
   signal counter_tick       : std_logic;
@@ -110,11 +110,11 @@ architecture vad_rtl of vad is
       n_sq_repr   => square_power_repr(31 downto 0) -- from 0 to 2^30
     );
 
-    square_power_repr(33 downto 32) <= "00";
+    square_power_repr(37 downto 32) <= (others => '0'); -- extend representation
 
     accumulator_component : accumulator
     generic map (
-      Nbit    => 34
+      Nbit    => 38
     )
     port map (
     clk     => clk,
@@ -122,8 +122,8 @@ architecture vad_rtl of vad is
     incr    => square_power_repr,  -- from 0 to 2^30
 
     -- sum is from 0 to 2^34
-    q       => sum_repr(33 downto 0),
-    ovf     => sum_repr(34)
+    q       => sum_repr(37 downto 0),
+    ovf     => sum_repr(38)
     );
 
     voice_detected <= '1' when (unsigned(sum_repr) > threshold) else '0';
