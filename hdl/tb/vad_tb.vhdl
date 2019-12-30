@@ -55,7 +55,10 @@ architecture behaviour of vad_tb is
           when 2 =>
             fs_s <= '0';
 
-          when 280 => testing <= false;
+          when 256 =>
+            x_data <= X"0002";
+
+          when 520 => testing <= false;
           when others => null;
 
         end case;
