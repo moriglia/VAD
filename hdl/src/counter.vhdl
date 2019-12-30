@@ -16,18 +16,18 @@ entity counter is
 end entity counter;
 
 architecture counter_arch of counter is
-  component dff is
+  component dffe is
     generic (
       Nbit : positive
     );
     port (
       clk     : in std_logic;
       resetn  : in std_logic;
-
+      en      : in std_logic ;
       d       : in std_logic_vector(Nbit - 1 downto 0);
       q       : out std_logic_vector(Nbit - 1 downto 0)
     );
-  end component dff;
+  end component dffe;
 
   component incrementer is
     generic (
@@ -45,30 +45,30 @@ architecture counter_arch of counter is
   signal q_s    : std_logic_vector(Nbit - 1 downto 0);
   signal d_s    : std_logic_vector(Nbit - 1 downto 0);
   signal ovf_s  : std_logic;
-  signal clk_en : std_logic;
 
   begin
-    clk_en <= clk and enable ;
 
-    dff_comp : dff
+    dff_comp : dffe
     generic map (
       Nbit => Nbit
     )
     port map (
-      clk => clk_en,
+      clk => clk,
       resetn => resetn,
+      en => enable,
 
       d => d_s,
       q => q_s
     );
 
-    ovf_register : dff
+    ovf_register : dffe
     generic map (
       Nbit => 1
     )
     port map (
-      clk => clk_en,
+      clk => clk,
       resetn => resetn,
+      en => enable,
 
       d(0) => ovf_s,  -- Assign a 1 bit std_logic_vector to a std_logic
       q(0) => ovf     -- Assign a 1 bit std_logic_vector to a std_logic

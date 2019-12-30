@@ -64,6 +64,19 @@ architecture vad_rtl of vad is
     );
   end component counter;
 
+  component dffe is
+    generic (
+      Nbit : positive
+    );
+    port (
+      clk     : in std_logic;
+      resetn  : in std_logic;
+      en      : in std_logic;
+      d       : in std_logic_vector(Nbit - 1 downto 0);
+      q       : out std_logic_vector(Nbit - 1 downto 0)
+    );
+  end component dffe;
+
   component dff is
     generic (
       Nbit : positive
@@ -71,7 +84,6 @@ architecture vad_rtl of vad is
     port (
       clk     : in std_logic;
       resetn  : in std_logic;
-
       d       : in std_logic_vector(Nbit - 1 downto 0);
       q       : out std_logic_vector(Nbit - 1 downto 0)
     );
@@ -89,7 +101,6 @@ architecture vad_rtl of vad is
   signal voice_detected_delayed : std_logic;
 
   signal counter_tick       : std_logic;
-  signal clk_tick           : std_logic;
 
   begin
     resetn <= rst_n and not FRAME_START;
@@ -154,15 +165,14 @@ architecture vad_rtl of vad is
       ovf     => counter_tick
     );
 
-    clk_tick  <= clk and counter_tick;
-
-    vad_out_register  : dff
+    vad_out_register  : dffe
     generic map (
       Nbit => 1
     )
     port map (
-      clk     => clk_tick,
+      clk     => clk,
       resetn  => resetn,
+      en      => counter_tick,
 
       d(0)    => voice_detected_delayed,
       q(0)    => vad_out
