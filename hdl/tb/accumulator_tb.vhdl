@@ -26,7 +26,9 @@ architecture behaviour of accumulator_tb is
       clk   : in std_logic;
       resetn: in std_logic;
       incr  : in std_logic_vector(Nbit - 1 downto 0);
-
+      default : in std_logic_vector(Nbit - 1 downto 0);
+      en    : in    std_logic ;
+  
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
     );
@@ -43,6 +45,8 @@ architecture behaviour of accumulator_tb is
       clk => clk,
       resetn => resetn,
       incr => incr_s,
+      default => (others => '0'),
+      en => '1',
 
       q => q_s,
       ovf => ovf_s

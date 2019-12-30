@@ -44,7 +44,9 @@ architecture vad_rtl of vad is
       clk   : in std_logic;
       resetn: in std_logic;
       incr  : in std_logic_vector(Nbit - 1 downto 0);
-
+      default : in std_logic_vector(Nbit - 1 downto 0);
+      en    : in    std_logic ;
+  
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
     );
@@ -89,18 +91,32 @@ architecture vad_rtl of vad is
     );
   end component dff;
 
+  component srffe is 
+    port(
+        clk      : in    std_logic ;
+        resetn   : in    std_logic ;
+        en       : in    std_logic ;
+        s        : in    std_logic ;
+        r        : in    std_logic ;
+        q        : out   std_logic
+    );
+  end component srffe;
+
+
   signal resetn   : std_logic;
   signal accumulator_reset  : std_logic;
 
   signal abs_repr           : std_logic_vector(15 downto 0);
-  signal square_power_repr  : std_logic_vector(37 downto 0);
-  signal sum_repr           : std_logic_vector(38 downto 0);
+  signal square_power_repr  : std_logic_vector(33 downto 0);
 
-  constant threshold        : unsigned(38 downto 0) := "000001100110011001100110011001100110011";
+  -- constant threshold       : unsigned(38 downto 0) := "000001100110011001100110011001100110011";
+  signal compl_threshold : std_logic_vector(33 downto 0) := "0011001100110011001100110011001101";
+                                                            
   signal voice_detected     : std_logic;
-  signal voice_detected_delayed : std_logic;
 
   signal counter_tick       : std_logic;
+  signal acc_ovf : std_logic;
+  signal reset : std_logic;
 
   begin
     resetn <= rst_n and not FRAME_START;
@@ -123,35 +139,32 @@ architecture vad_rtl of vad is
       n_sq_repr   => square_power_repr(31 downto 0) -- from 0 to 2^30
     );
 
-    square_power_repr(37 downto 32) <= (others => '0'); -- extend representation
+    square_power_repr(33 downto 32) <= (others => '0'); -- extend representation
     accumulator_reset <= resetn and not counter_tick;
 
     accumulator_component : accumulator
     generic map (
-      Nbit    => 38
+      Nbit    => 34
     )
     port map (
     clk     => clk,
     resetn  => accumulator_reset,
     incr    => square_power_repr,  -- from 0 to 2^30
+    default => compl_threshold,
+    en      => '1',
 
-    -- sum is from 0 to 2^39
-    q       => sum_repr(37 downto 0),
-    ovf     => sum_repr(38)
+    q       => open,
+    ovf     => acc_ovf
     );
 
-    voice_detected <= '1' when (unsigned(sum_repr) > threshold) else '0';
-
-    voice_detected_delay_register : dff
-    generic map (
-      Nbit => 1
-    )
+    voice_detected_srffe : srffe
     port map (
-      clk     => clk,
-      resetn  => resetn,
-
-      d(0)    => voice_detected,
-      q(0)    => voice_detected_delayed
+      clk => clk,
+      s => acc_ovf,
+      r => '0',
+      resetn => resetn,
+      q => voice_detected,
+      en => '1'
     );
 
     counter_component : counter
@@ -174,7 +187,7 @@ architecture vad_rtl of vad is
       resetn  => resetn,
       en      => counter_tick,
 
-      d(0)    => voice_detected_delayed,
+      d(0)    => voice_detected,
       q(0)    => vad_out
     );
 
