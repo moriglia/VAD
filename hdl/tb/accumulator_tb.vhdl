@@ -7,6 +7,7 @@ end entity accumulator_tb;
 
 architecture behaviour of accumulator_tb is
   constant N: positive := 3;
+  constant initial_value: std_logic_vector(N-1 downto 0) := (others => '1');
   signal incr_s : std_logic_vector(N-1 downto 0);
   signal q_s : std_logic_vector(N-1 downto 0);
   signal ovf_s : std_logic;
@@ -20,15 +21,15 @@ architecture behaviour of accumulator_tb is
 
   component accumulator is
     generic (
-      Nbit : positive
+      Nbit    : positive;
+      default : std_logic_vector
     );
     port (
       clk   : in std_logic;
       resetn: in std_logic;
       incr  : in std_logic_vector(Nbit - 1 downto 0);
-      default : in std_logic_vector(Nbit - 1 downto 0);
       en    : in    std_logic ;
-  
+
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
     );
@@ -39,13 +40,13 @@ architecture behaviour of accumulator_tb is
 
     aut: accumulator
     generic map (
-      Nbit => N
+      Nbit => N,
+      default => initial_value
     )
     port map (
       clk => clk,
       resetn => resetn,
       incr => incr_s,
-      default => (others => '0'),
       en => '1',
 
       q => q_s,

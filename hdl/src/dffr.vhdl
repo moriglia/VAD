@@ -5,12 +5,12 @@ use ieee.std_logic_1164.all;
 
 entity dffr is
   generic (
-    Nbit : positive
+    Nbit      : positive;
+    default   : std_logic_vector  -- reset default value
   );
   port (
     clk     : in std_logic;
     resetn  : in std_logic;
-    default : in std_logic_vector(Nbit - 1 downto 0);
 
     d       : in std_logic_vector(Nbit - 1 downto 0);
     q       : out std_logic_vector(Nbit - 1 downto 0)

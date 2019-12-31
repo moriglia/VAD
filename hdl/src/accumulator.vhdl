@@ -3,13 +3,14 @@ use ieee.std_logic_1164.all;
 
 entity accumulator is
   generic (
-    Nbit : positive
+    Nbit    : positive;
+    default : std_logic_vector
   );
   port (
     clk   : in std_logic;
     resetn: in std_logic;
     incr  : in std_logic_vector(Nbit - 1 downto 0);
-    default : in std_logic_vector(Nbit - 1 downto 0);
+
     en    : in    std_logic ;
 
     q     : out std_logic_vector(Nbit - 1 downto 0);
@@ -18,15 +19,17 @@ entity accumulator is
 end entity accumulator;
 
 architecture accumulator_arch of accumulator is
-  component dffre is 
-    generic (Nbit : integer := 4);
+  component dffre is
+    generic (
+        Nbit      : integer := 4;
+        default   : std_logic_vector);
     port(
         clk      : in    std_logic ;
         resetn   : in    std_logic ;
         en       : in    std_logic ;
-        default  : in    std_logic_vector(Nbit-1 downto 0) ;
+
         d        : in    std_logic_vector(Nbit-1 downto 0) ;
-        q        : out   std_logic_vector(Nbit-1 downto 0) 
+        q        : out   std_logic_vector(Nbit-1 downto 0)
     );
   end component dffre;
 
@@ -51,13 +54,13 @@ architecture accumulator_arch of accumulator is
 
   dff_comp : dffre
   generic map (
-    Nbit => Nbit
+    Nbit => Nbit,
+    default => default
   )
   port map (
     clk => clk,
     resetn => resetn,
     en => en,
-    default => default,
 
     d => d_s,
     q => q_s

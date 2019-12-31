@@ -38,15 +38,16 @@ architecture vad_rtl of vad is
 
   component accumulator is
     generic (
-      Nbit : positive
+      Nbit    : positive;
+      default : std_logic_vector
     );
     port (
       clk   : in std_logic;
       resetn: in std_logic;
       incr  : in std_logic_vector(Nbit - 1 downto 0);
-      default : in std_logic_vector(Nbit - 1 downto 0);
+
       en    : in    std_logic ;
-  
+
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
     );
@@ -91,7 +92,7 @@ architecture vad_rtl of vad is
     );
   end component dff;
 
-  component srffe is 
+  component srffe is
     port(
         clk      : in    std_logic ;
         resetn   : in    std_logic ;
@@ -109,9 +110,8 @@ architecture vad_rtl of vad is
   signal abs_repr           : std_logic_vector(15 downto 0);
   signal square_power_repr  : std_logic_vector(33 downto 0);
 
-  -- constant threshold       : unsigned(38 downto 0) := "000001100110011001100110011001100110011";
-  signal compl_threshold : std_logic_vector(33 downto 0) := "0011001100110011001100110011001101";
-                                                            
+  constant compl_threshold  : std_logic_vector(33 downto 0) := "0011001100110011001100110011001101";
+
   signal voice_detected     : std_logic;
 
   signal counter_tick       : std_logic;
@@ -144,13 +144,13 @@ architecture vad_rtl of vad is
 
     accumulator_component : accumulator
     generic map (
-      Nbit    => 34
+      Nbit    => 34,
+      default => compl_threshold
     )
     port map (
     clk     => clk,
     resetn  => accumulator_reset,
     incr    => square_power_repr,  -- from 0 to 2^30
-    default => compl_threshold,
     en      => '1',
 
     q       => open,
