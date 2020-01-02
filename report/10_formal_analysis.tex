@@ -1,0 +1,25 @@
+\section{Problem formal analysis}
+The problem we must solve is to tell whether:
+\begin{equation*}
+  E_{th} \le \frac{1}{N} \sum_{n=1}^N x^2[n]
+\end{equation*}
+Since $ x[n] \in [-1, 1) $ and it is represented on 16 bits, it can be
+written as
+\begin{equation*}
+  x[n] = z[n]\cdot LSB
+\end{equation*}
+So $z[n] \in [-2^{15}, 2^{15} - 1]$ and $LSB = \frac{1}{2^{15}}$. Therefor we
+can equivalently check that:
+\begin{equation*}
+  \sum_{n=1}^N |z[n]|^2 \ge \frac{N \cdot E_{th}}{LSB^2} = E_{th}'
+\end{equation*}
+Since the sampling rate is $f_s$ and the frame duration is $T_{frame}$,
+we can easily compute the number of samples per frame:
+$N = \frac{T_{frame}}{1/f_s} = 16\si{\milli\second} \cdot 16\si{\kilo\hertz} = 256$.
+$E_{th}' = 13743895347$.
+% Insert discussion about representation bit number of abs and sum optimization
+
+Data seriality can be exploited by using the recursive sum formula
+\begin{equation*}
+  S[n] = |z[n]|^2 + S[n - 1]
+\end{equation*}
