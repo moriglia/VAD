@@ -3,3 +3,6 @@ ghdl/*
 !ghdl/makefile
 
 vivado/
+
+report/*
+!report/*.tex
