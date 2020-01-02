@@ -17,13 +17,15 @@ architecture behaviour of counter_tb is
   constant T_CLK : time := 8 ns;
 
   constant N_zeroes : std_logic_vector(N - 1 downto 0) := (others => '0');
+  constant after_ovf : std_logic_vector(N - 1 downto 0) := (N-1 => '1', others => '0');
 
   signal testing : boolean := true;
 
   component counter is
     generic (
       Nbit : positive;
-      default : std_logic_vector
+      val_after_reset : std_logic_vector;
+      val_after_ovf : std_logic_vector
     );
     port (
       clk     : in std_logic;
@@ -41,7 +43,8 @@ architecture behaviour of counter_tb is
     counter_ut: counter
     generic map (
       Nbit => N,
-      default => N_zeroes
+      val_after_reset => N_zeroes,
+      val_after_ovf => after_ovf
     )
     port map (
       clk     => clk,
