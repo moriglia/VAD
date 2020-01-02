@@ -55,7 +55,8 @@ architecture vad_rtl of vad is
 
   component counter is
     generic (
-      Nbit : positive
+      Nbit : positive;
+      default : std_logic_vector
     );
     port (
       clk     : in std_logic;
@@ -100,6 +101,7 @@ architecture vad_rtl of vad is
   signal square_power_repr  : std_logic_vector(33 downto 0);
 
   constant compl_threshold  : std_logic_vector(33 downto 0) := "0011001100110011001100110011001101";
+  constant eight_zeroes : std_logic_vector(7 downto 0) := (others => '0');
 
   signal voice_detected     : std_logic;
 
@@ -158,7 +160,8 @@ architecture vad_rtl of vad is
 
     counter_component : counter
     generic map (
-      Nbit  => 8
+      Nbit  => 8,
+      default => eight_zeroes
     )
     port map (
       clk     => clk,

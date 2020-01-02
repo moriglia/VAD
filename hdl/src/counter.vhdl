@@ -3,7 +3,8 @@ use ieee.std_logic_1164.all;
 
 entity counter is
   generic (
-    Nbit : positive
+    Nbit : positive;
+    default : std_logic_vector
   );
   port (
     clk     : in std_logic;
@@ -47,13 +48,12 @@ architecture counter_arch of counter is
   signal d_s    : std_logic_vector(Nbit - 1 downto 0);
   signal ovf_s  : std_logic;
 
-  constant zero_default : std_logic_vector(Nbit - 1 downto 0) := (others => '0');
   begin
 
     dff_comp : dffe
     generic map (
       Nbit => Nbit,
-      default => zero_default
+      default => default
     )
     port map (
       clk => clk,
