@@ -152,7 +152,7 @@ architecture vad_rtl of vad is
     port map (
       clk => clk,
       s => acc_ovf,
-      r => counter_tick,
+      r => '0',
       resetn => resetn,
       q => voice_detected,
       en => '1'
