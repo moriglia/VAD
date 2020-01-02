@@ -56,13 +56,14 @@ architecture vad_rtl of vad is
   component counter is
     generic (
       Nbit : positive;
-      default : std_logic_vector
+      val_after_reset : std_logic_vector;
+      val_after_ovf : std_logic_vector
     );
     port (
       clk     : in std_logic;
       resetn  : in std_logic;
       enable  : in std_logic;
-
+  
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
     );
@@ -101,13 +102,22 @@ architecture vad_rtl of vad is
   signal square_power_repr  : std_logic_vector(33 downto 0);
 
   constant compl_threshold  : std_logic_vector(33 downto 0) := "0011001100110011001100110011001101";
-  constant eight_zeroes : std_logic_vector(7 downto 0) := (others => '0');
+  constant eighteen_zeroes : std_logic_vector(17 downto 0) := (others => '0');
+
+  constant N_bit_frame : integer := 10;
+  constant frame_tick_after_rst : std_logic_vector(9 downto 0) := std_logic_vector(to_unsigned(525, 10));
+  constant frame_tick_after_ovf : std_logic_vector(9 downto 0) := std_logic_vector(to_unsigned(24, 10));
+  constant frame_counter_default : std_logic_vector(17 downto 0) := std_logic_vector(to_unsigned(6146, 18));
 
   signal voice_detected     : std_logic;
 
+  signal frame_tick         : std_logic;
   signal counter_tick       : std_logic;
   signal acc_ovf : std_logic;
   signal reset : std_logic;
+  signal in_frame : std_logic;
+  signal en_vad_out : std_logic;
+  signal vad_out_in : std_logic;
 
   begin
     resetn <= rst_n and not FRAME_START;
@@ -131,6 +141,30 @@ architecture vad_rtl of vad is
     );
 
     square_power_repr(33 downto 32) <= (others => '0'); -- extend representation
+
+    in_frame_srffe : srffe
+    port map (
+      clk => clk,
+      s => FRAME_START,
+      r => counter_tick,
+      resetn => rst_n,
+      q => in_frame,
+      en => '1'
+    );
+
+    frame_clocker : counter
+    generic map (
+      Nbit => N_bit_frame,
+      val_after_reset => frame_tick_after_rst,
+      val_after_ovf => frame_tick_after_ovf
+    )
+    port map (
+      clk     => clk,
+      resetn  => resetn,
+      enable  => in_frame,
+      ovf     => frame_tick
+    );
+
     accumulator_reset <= resetn and not counter_tick;
 
     accumulator_component : accumulator
@@ -142,7 +176,7 @@ architecture vad_rtl of vad is
     clk     => clk,
     resetn  => accumulator_reset,
     incr    => square_power_repr,  -- from 0 to 2^30
-    en      => '1',
+    en      => frame_tick,
 
     q       => open,
     ovf     => acc_ovf
@@ -155,20 +189,25 @@ architecture vad_rtl of vad is
       r => '0',
       resetn => resetn,
       q => voice_detected,
-      en => '1'
+      en => in_frame
     );
 
     counter_component : counter
     generic map (
-      Nbit  => 8,
-      default => eight_zeroes
+      Nbit  => 8+N_bit_frame,
+      val_after_reset => frame_counter_default,
+      val_after_ovf => frame_counter_default
     )
     port map (
       clk     => clk,
       resetn  => resetn,
-      enable  => '1',
+      enable  => in_frame,
       ovf     => counter_tick
     );
+
+    -- keep vad_out until next frame starts
+    vad_out_in <= (not FRAME_START) and voice_detected;
+    en_vad_out <= FRAME_START or counter_tick;
 
     vad_out_register  : dffe
     generic map (
@@ -177,10 +216,10 @@ architecture vad_rtl of vad is
     )
     port map (
       clk     => clk,
-      resetn  => resetn,
-      en      => counter_tick,
+      resetn  => rst_n,
+      en      => en_vad_out,
 
-      d(0)    => voice_detected,
+      d(0)    => vad_out_in,
       q(0)    => vad_out
     );
 
