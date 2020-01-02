@@ -16,7 +16,7 @@ end entity vad;
 
 architecture vad_rtl of vad is
 
-  component absnetwork is
+  component absnetwork_approx is
     generic (
       Nbit : positive
     );
@@ -24,7 +24,7 @@ architecture vad_rtl of vad is
       z_number  : in  std_logic_vector(Nbit - 1 downto 0);
       n_number  : out std_logic_vector(Nbit - 1 downto 0)
     );
-  end component absnetwork;
+  end component absnetwork_approx;
 
   component squarepowernetwork_unsigned is
     generic (
@@ -122,7 +122,7 @@ architecture vad_rtl of vad is
   begin
     resetn <= rst_n and not FRAME_START;
 
-    abs_component : absnetwork
+    abs_component : absnetwork_approx
     generic map (
       Nbit => 16
     )
