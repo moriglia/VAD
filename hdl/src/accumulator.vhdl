@@ -19,7 +19,7 @@ entity accumulator is
 end entity accumulator;
 
 architecture accumulator_arch of accumulator is
-  component dffre is
+  component dffe is
     generic (
         Nbit      : integer := 4;
         default   : std_logic_vector);
@@ -31,7 +31,7 @@ architecture accumulator_arch of accumulator is
         d        : in    std_logic_vector(Nbit-1 downto 0) ;
         q        : out   std_logic_vector(Nbit-1 downto 0)
     );
-  end component dffre;
+  end component dffe;
 
   component rcadder is
     generic (
@@ -52,7 +52,7 @@ architecture accumulator_arch of accumulator is
 
   begin
 
-  dff_comp : dffre
+  dff_comp : dffe
   generic map (
     Nbit => Nbit,
     default => default

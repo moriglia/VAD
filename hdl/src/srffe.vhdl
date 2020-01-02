@@ -16,7 +16,7 @@ use IEEE.std_logic_1164.all;
 -- 1 1 0 | 1
 -- 1 1 1 | 1
 
-entity srffe is 
+entity srffe is
     port(
         clk      : in    std_logic ;
         resetn   : in    std_logic ;
@@ -27,10 +27,11 @@ entity srffe is
     );
 end srffe;
 
-architecture gen of srffe is   
-    component dffe is 
+architecture gen of srffe is
+    component dffe is
         generic (
-            Nbit : positive
+            Nbit    : positive;
+            default : std_logic_vector
         );
         port (
             clk     : in std_logic;
@@ -48,6 +49,6 @@ begin
 
     d <= s or ((not s) and (not r) and q_fb);
 
-    m_dffe : dffe generic map (Nbit => 1)
+    m_dffe : dffe generic map (Nbit => 1, default => "0")
         port map (d(0) => d, clk => clk, resetn => resetn, q(0) => q_fb, en => en);
 end gen;

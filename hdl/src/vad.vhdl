@@ -69,7 +69,8 @@ architecture vad_rtl of vad is
 
   component dffe is
     generic (
-      Nbit : positive
+      Nbit    : positive;
+      default : std_logic_vector
     );
     port (
       clk     : in std_logic;
@@ -79,18 +80,6 @@ architecture vad_rtl of vad is
       q       : out std_logic_vector(Nbit - 1 downto 0)
     );
   end component dffe;
-
-  component dff is
-    generic (
-      Nbit : positive
-    );
-    port (
-      clk     : in std_logic;
-      resetn  : in std_logic;
-      d       : in std_logic_vector(Nbit - 1 downto 0);
-      q       : out std_logic_vector(Nbit - 1 downto 0)
-    );
-  end component dff;
 
   component srffe is
     port(
@@ -161,7 +150,7 @@ architecture vad_rtl of vad is
     port map (
       clk => clk,
       s => acc_ovf,
-      r => '0',
+      r => counter_tick,
       resetn => resetn,
       q => voice_detected,
       en => '1'
@@ -180,7 +169,8 @@ architecture vad_rtl of vad is
 
     vad_out_register  : dffe
     generic map (
-      Nbit => 1
+      Nbit => 1,
+      default => "0"
     )
     port map (
       clk     => clk,

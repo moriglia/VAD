@@ -10,6 +10,7 @@ architecture behaviour of dff_tb is
   signal resetn: std_logic := '0';
 
   constant N: positive := 8;
+  constant zero_default: std_logic_vector(N - 1 downto 0) := (others => '0');
 
   signal d: std_logic_vector(N - 1 downto 0);
   signal q: std_logic_vector(N - 1 downto 0);
@@ -20,7 +21,8 @@ architecture behaviour of dff_tb is
 
   component dff is
     generic (
-      Nbit : positive
+      Nbit    : positive;
+      default : std_logic_vector
     );
     port (
       clk     : in std_logic;
@@ -37,7 +39,8 @@ architecture behaviour of dff_tb is
 
     dff_ut : dff
     generic map (
-      Nbit => N
+      Nbit => N,
+      default => zero_default
     )
     port map (
       clk => clk,

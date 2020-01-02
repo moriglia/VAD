@@ -18,7 +18,8 @@ end entity counter;
 architecture counter_arch of counter is
   component dffe is
     generic (
-      Nbit : positive
+      Nbit    : positive;
+      default : std_logic_vector
     );
     port (
       clk     : in std_logic;
@@ -46,11 +47,13 @@ architecture counter_arch of counter is
   signal d_s    : std_logic_vector(Nbit - 1 downto 0);
   signal ovf_s  : std_logic;
 
+  constant zero_default : std_logic_vector(Nbit - 1 downto 0) := (others => '0');
   begin
 
     dff_comp : dffe
     generic map (
-      Nbit => Nbit
+      Nbit => Nbit,
+      default => zero_default
     )
     port map (
       clk => clk,
@@ -63,7 +66,8 @@ architecture counter_arch of counter is
 
     ovf_register : dffe
     generic map (
-      Nbit => 1
+      Nbit => 1,
+      default => "0"
     )
     port map (
       clk => clk,

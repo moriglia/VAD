@@ -3,7 +3,8 @@ use ieee.std_logic_1164.all;
 
 entity dff is
   generic (
-    Nbit : positive
+    Nbit    : positive;
+    default : std_logic_vector
   );
   port (
     clk     : in std_logic;
@@ -22,7 +23,7 @@ architecture dff_arch of dff is
     clk_process : process(clk, resetn)
     begin
       if resetn = '0' then
-        memory_signal <= (others => '0');
+        memory_signal <= default;
       elsif rising_edge(clk) then
         memory_signal <= d;
       end if;
