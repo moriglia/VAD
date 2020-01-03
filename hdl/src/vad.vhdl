@@ -22,7 +22,7 @@ architecture vad_rtl of vad is
     );
     port (
       z_number  : in  std_logic_vector(Nbit - 1 downto 0);
-      n_number  : out std_logic_vector(Nbit - 1 downto 0)
+      n_number  : out std_logic_vector(Nbit - 2 downto 0)
     );
   end component absnetwork_approx;
 
@@ -63,7 +63,7 @@ architecture vad_rtl of vad is
       clk     : in std_logic;
       resetn  : in std_logic;
       enable  : in std_logic;
-  
+
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
     );
@@ -98,7 +98,7 @@ architecture vad_rtl of vad is
   signal resetn   : std_logic;
   signal accumulator_reset  : std_logic;
 
-  signal abs_repr           : std_logic_vector(15 downto 0);
+  signal abs_repr           : std_logic_vector(14 downto 0);
   signal square_power_repr  : std_logic_vector(33 downto 0);
 
   constant compl_threshold  : std_logic_vector(33 downto 0) := "0011001100110011001100110011001101";
@@ -128,19 +128,19 @@ architecture vad_rtl of vad is
     )
     port map (
       z_number    => x,       -- from -2^15 to 2^15 - 1
-      n_number    => abs_repr -- from 0 to 2^15
+      n_number    => abs_repr -- from 0 to 2^15 - 1
     );
 
     squarepowernet_component : squarepowernetwork_unsigned
     generic map (
-      Nbit => 16
+      Nbit => 15
     )
     port map (
-      n_repr      => abs_repr,                      -- from 0 to 2^15
-      n_sq_repr   => square_power_repr(31 downto 0) -- from 0 to 2^30
+      n_repr      => abs_repr,                      -- from 0 to 2^15 - 1
+      n_sq_repr   => square_power_repr(29 downto 0) -- from 0 to 2^30 - 2^16 + 1
     );
 
-    square_power_repr(33 downto 32) <= (others => '0'); -- extend representation
+    square_power_repr(33 downto 30) <= (others => '0'); -- extend representation
 
     in_frame_srffe : srffe
     port map (
@@ -175,7 +175,7 @@ architecture vad_rtl of vad is
     port map (
     clk     => clk,
     resetn  => accumulator_reset,
-    incr    => square_power_repr,  -- from 0 to 2^30
+    incr    => square_power_repr,  -- from 0 to 2^30 - 2^16 + 1
     en      => frame_tick,
 
     q       => open,
