@@ -17,9 +17,20 @@ Since the sampling rate is $f_s$ and the frame duration is $T_{frame}$,
 we can easily compute the number of samples per frame:
 $N = \frac{T_{frame}}{1/f_s} = 16\si{\milli\second} \cdot 16\si{\kilo\hertz} = 256$.
 $E_{th}' = 13743895347$.
-% Insert discussion about representation bit number of abs and sum optimization
 
-Data seriality can be exploited by using the recursive sum formula
+\paragraph{Absolute value} of $z > 0$ is $Z$, which is also the representation
+of $z$ if it is represented using the 2 complement on 16 bits. We note that
+$Z(15) = 0$ because $z > 0$.
+
+If $z < 0$, $|z|$ is represented by $\bar{Z} + 1$, with $Z\in[2^{15}, 2^{16}-1]$.
+So $\bar{Z} + 1 \in [1, 2^{15}]$, which requires 16 bits to be represented.
+We could approximate the representation of $|z|$ with $\bar{Z}$ for negative $z$,
+so the representation would require only 15 bits, as in the case of $z > 0$.
+
+We could hence use only 15 bits to represent $|z|$ for all cases.
+
+\paragraph{Data seriality} can be exploited by using the recursive sum formula
 \begin{equation*}
   S[n] = |z[n]|^2 + S[n - 1]
 \end{equation*}
+$S[N]$ will expand to the sum of the previous equations.
