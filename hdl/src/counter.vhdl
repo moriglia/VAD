@@ -4,7 +4,8 @@ use ieee.std_logic_1164.all;
 entity counter is
   generic (
     Nbit : positive;
-    default : std_logic_vector
+    val_after_reset : std_logic_vector;
+    val_after_ovf : std_logic_vector
   );
   port (
     clk     : in std_logic;
@@ -44,23 +45,34 @@ architecture counter_arch of counter is
     );
   end component incrementer;
 
+  component mux is 
+    generic (N_mux : integer := 4);
+    port(
+        in1_mux   : in    std_logic_vector(N_mux-1 downto 0) ;
+        in2_mux   : in    std_logic_vector(N_mux-1 downto 0) ;
+        s_mux     : in    std_logic ;
+        out_mux   : out   std_logic_vector(N_mux-1 downto 0) 
+    );
+  end component mux;
+
   signal q_s    : std_logic_vector(Nbit - 1 downto 0);
   signal d_s    : std_logic_vector(Nbit - 1 downto 0);
-  signal ovf_s  : std_logic;
+  signal ovf_s    : std_logic;
+  signal d_in   : std_logic_vector(Nbit - 1 downto 0);
 
   begin
 
     dff_comp : dffe
     generic map (
       Nbit => Nbit,
-      default => default
+      default => val_after_reset
     )
     port map (
       clk => clk,
       resetn => resetn,
       en => enable,
 
-      d => d_s,
+      d => d_in,
       q => q_s
     );
 
@@ -88,6 +100,16 @@ architecture counter_arch of counter is
 
       s => d_s,
       cout => ovf_s
+    );
+    
+    d_mux : mux
+    generic map(
+      N_mux => Nbit
+    ) port map (
+      in1_mux => d_s,
+      in2_mux => val_after_ovf,
+      s_mux => ovf_s,
+      out_mux => d_in
     );
 
     q <= q_s;

@@ -42,9 +42,8 @@ architecture gen of dffe is
     signal q_loop : std_logic_vector(Nbit-1 downto 0);
     signal mux_out : std_logic_vector(Nbit-1 downto 0);
 
-    constant zero_default : std_logic_vector(Nbit - 1 downto 0) := (others => '0');
 begin
-    m_dff : dff generic map (Nbit => Nbit, default => zero_default)
+    m_dff : dff generic map (Nbit => Nbit, default => default)
         port map (d => mux_out, clk => clk, resetn => resetn, q => q_loop);
 
 
