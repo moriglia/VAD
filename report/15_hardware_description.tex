@@ -1,0 +1,67 @@
+\section{Implementation}
+
+\subsection{Essential components}
+They are:
+\begin{itemize}
+  \item \texttt{absnetwork}: a combinatorial network that extracts $|z|$,
+  its input has 16 bits, its output has 16 bits as well.
+  \item \texttt{squarepowernetwork}: a combinatorial network that evaluates
+  $|z|^2$ on 32 bits (it is implemented using a multiplier, so for an input of
+  16 bits, 32 are required for the result, even though $|z|^2 \le 2^30$ and
+  would require no more than 31 bits)
+  \item \texttt{accumulator}: performs the recursive sum $S[n] = |z[n]|^2 + S[n - 1]$.
+  The maximum sum value is $N \cdot 2^{30} = 16 \cdot 2^{30} = 2^{38}$, requiring 39 bits.
+  \item \texttt{comparator}: combinatorial network that compares the output
+  of the \texttt{accumulator} with $E_{th}'$, which must be represented on 39
+  bits as well in order to be compared to the sum.
+\end{itemize}
+
+\subsection{Optimizations}
+In order to reduce the number of resources used in the implementation, we can
+check for possible optimizations.
+
+\subsubsection{Comparison}
+We note that $E_{th}' \simeq 13743895347$ and $\lceil\log_2 E_{th}' + 1\rceil = 34$.
+This means that 34 bits would be enough to represent $E_{th}'$. This also implies
+that we don't need the accumulator to sum up to more than $2^{34} - 1$, because
+if the sum exceeds $2^{34}$, the sum is grater than the threshold.
+
+Moreover we can initialize the initial value of the sum to the overflow value
+minus the threshold, so that the overflow will indicate that the threshold has
+been exceeded, without using the comparator logic. The initial value of the sum
+is $S'[0] = 2^{34} - E'_{th} = 3435973837$ and we compute:
+\begin{align*}
+  S'[n] &= \bigg| S'[n-1] + |z[n]|^2 \bigg|_{2^{34}}\\
+  ovf[n] &= \bigg\lfloor \frac{S'[n-1] + |z[n]|^2}{2^{34}} \bigg\rfloor
+\end{align*}
+$ovf[n] = 1$ does not imply that $ovf[n + 1] = 1$, but since we are summing
+positive integers, the sum will obviously exceed $2^{34}$, so we must remember
+that the threshold has been exceeded until the end of the frame.
+For this purpose we used a Set-Reset Flip Flop, which is reset at the beginning
+of the frame processing and eventually set by $ovf[n]$.
+
+% \subsection{Absolute value}
+% The approximation of the absolute value we introduced in the formal analysis
+% introduces an error on the energy. This error for negative $x[n]$ can be evaluated as
+% \begin{equation*}
+%   \epsilon[n] = |z[n]|^2 - \tilde{z}^2[n] = (\bar{Z}[n] + 1)^2 - \bar{Z}^2[n] = 2\bar{Z}[n] + 1
+% \end{equation*}
+% The worst error we can make corresponds to $\bar{Z}[n] = 2^15 - 1$
+% so $\epsilon_{max} = 2^16 -1$
+
+\subsection{Clock and sampling}
+The sampling rate is 16\si{\kilo\hertz}, but we can process the data at a faster
+rate. If we used a 16\si{\kilo\hertz} clock and after a frame is processed,
+another one followed, a clock cycle would be required for \texttt{FRAME\_START}.
+So we loose a clock cycle at every frame. In order to avoid so, we could use a
+faster clock and divide it, so that one short clock cycle is spent in resetting
+everithing at the \texttt{FRAME\_START}, but a more clock cycles are are
+available before the input sample changes.
+
+In order to perform the clock frequency division we used the
+\texttt{frame_clocker} counter.
+The overflow of the counter is used to enable the accumulator, which must
+accumulate at a rate equal to the sampling one.
+The accumulation must occur at instants which are in the middle of two sample
+instants. For this reason, \texttt{frame_clocker} is reset to a value which is
+half way between the initial value and the overflow value.
