@@ -17,7 +17,14 @@ current_pwd = $(shell pwd)
 simfile ?= $(shell find . -regex \.\/[a-zA-Z0-9_\.]+_tb.vhd[l]? -exec basename '{}' ';')
 simname = $(patsubst %.vhd,%,$(patsubst %.vhdl,%,$(simfile)))
 
+testdata_files ?= $(shell find ../hdl/utils/ \
+	-regex .*\/[a-zA-Z0-9_\.]+.in)
+testout_files ?= $(shell find ../hdl/utils/ \
+	-regex .*\/[a-zA-Z0-9_\.]+.out)
+
+
 .phony: update clean syntax preproc
+
 
 update:
 	@for f in ${vhd_files} ; do 	\
@@ -27,12 +34,18 @@ update:
 		fi ; \
 	 done
 	 @make preproc
+	 @for f in ${testdata_files} ${testout_files} ; do \
+	 		ln -s $$f `basename $$f` ; \
+	 done
+
 
 clean:
 	rm -rf $(shell find . -not -iname makefile -not -type d) ;
 
+
 syntax: preproc update
 	ghdl -s $(vhd_files) $(postproc_files)
+
 
 preproc:
 	@for f in $(preproc_files) ; do \
@@ -40,11 +53,18 @@ preproc:
 		cpp -P $$f -o $(current_pwd)/$${bn/".cpp"/""}; \
 	done
 
-build: syntax $(simfile)
-	@echo Simfile: $(simfile)
-	@echo Simname: $(simname)
+
+analyze: syntax
 	ghdl -a $(vhd_files) $(postproc_files)
+
+
+elaborate: analyze
 	@for sname in $(simname) ; do \
 		ghdl -e $$sname ; \
+	done
+
+
+build: syntax $(simfile)
+	@for sname in $(simname) ; do \
 		ghdl -r $$sname --vcd=$${sname}.vcd ;\
 	done

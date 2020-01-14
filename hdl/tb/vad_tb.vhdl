@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use std.textio.all;
 
 entity vad_tb is
 end entity vad_tb;
@@ -46,28 +47,37 @@ architecture behaviour of vad_tb is
     );
 
     stimulus  : process(frame_clk, clk)
-    variable t : integer := 0;
-    variable frame_started : boolean := false;
+    variable t              : integer := 0;
+    variable frame_started  : boolean := false;
+    variable sample         : integer;
+    variable int_line       : line;
     begin
       if rising_edge(frame_clk) then
         case t is
           when 0 => rst_n <= '1';
           when 1 =>
-            x_data(15)  <= '1';
-            x_data(14 downto 0) <= (others => '0');
-            frame_started := true;
-          when 257 =>
-            x_data <= X"C000";
-            frame_started := true;
-          when 513 => 
-            x_data <= X"0000";
-          when 520 => testing <= false;
-          when others => null;
+            if endfile(input) then
+              testing <= false;
+            else
+              readline(input, int_line);
+              read(int_line, sample);
+              x_data <= std_logic_vector(to_signed(sample, x_data'length));
+              frame_started := true;
+            end if;
+          when 257 => testing <= false;
+          when others =>
+            if testing and not endfile(input) then
+              readline(input, int_line);
+              read(int_line, sample);
+              x_data <= std_logic_vector(to_signed(sample, x_data'length));
+            else
+              null ;
+            end if;
 
         end case;
         t := t+1;
       end if;
-      if rising_edge(clk) then 
+      if rising_edge(clk) then
         if fs_s = '0' and frame_started then
           fs_s <= '1';
           frame_started := false;
