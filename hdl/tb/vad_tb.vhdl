@@ -55,28 +55,35 @@ architecture behaviour of vad_tb is
       if rising_edge(frame_clk) then
         case t is
           when 0 => rst_n <= '1';
-          when 1 =>
+          when others =>
+
             if endfile(input) then
               testing <= false;
             else
               readline(input, int_line);
               read(int_line, sample);
               x_data <= std_logic_vector(to_signed(sample, x_data'length));
-              frame_started := true;
             end if;
-          when 257 => testing <= false;
-          when others =>
-            if testing and not endfile(input) then
-              readline(input, int_line);
-              read(int_line, sample);
-              x_data <= std_logic_vector(to_signed(sample, x_data'length));
-            else
-              null ;
+
+            if t mod 256 = 1 then -- every N*256 + 1 frame clocks
+              if t /= 1 then      -- except for N = 0
+                -- write the output of the vad to stdout
+                if vad_out = '1' then
+                  write(int_line, 1);
+                else
+                  write(int_line, 0);
+                end if;
+                writeline(output, int_line);
+              end if;
+              frame_started := true;
             end if;
 
         end case;
+
         t := t+1;
-      end if;
+
+      end if; -- rising_edge(frame_clk)
+
       if rising_edge(clk) then
         if fs_s = '0' and frame_started then
           fs_s <= '1';

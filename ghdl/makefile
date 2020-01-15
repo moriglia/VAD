@@ -22,21 +22,19 @@ testdata_files ?= $(shell find ../hdl/utils/ \
 testout_files ?= $(shell find ../hdl/utils/ \
 	-regex .*\/[a-zA-Z0-9_\.]+.out)
 
+WF ?= vcd
 
 .phony: update clean syntax preproc
 
 
 update:
-	@for f in ${vhd_files} ; do 	\
+	@for f in ${vhd_files} ${testdata_files} ${testout_files}; do 	\
 		bn=`basename $$f` ; \
 		if [ ! -f $$bn ] ; then \
 			ln -s $$f $$bn ; \
 		fi ; \
 	 done
 	 @make preproc
-	 @for f in ${testdata_files} ${testout_files} ; do \
-	 		ln -s $$f `basename $$f` ; \
-	 done
 
 
 clean:
@@ -64,7 +62,7 @@ elaborate: analyze
 	done
 
 
-build: syntax $(simfile)
+build: elaborate $(simfile)
 	@for sname in $(simname) ; do \
-		ghdl -r $$sname --vcd=$${sname}.vcd ;\
+		ghdl -r $$sname --$(WF)=$${sname}.$(WF) ;\
 	done
