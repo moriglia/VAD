@@ -70,7 +70,7 @@ architecture rcadder_tb_arch of rcadder_tb is
       cin <= '0';
 
       wait for 10 ns ;
-      assert false report "End of Simulation" severity failure;
+      wait ; -- Stop simulation
 
     end process stimulus;
 
