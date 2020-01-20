@@ -59,9 +59,9 @@ everithing at the \texttt{FRAME\_START}, but a more clock cycles are are
 available before the input sample changes.
 
 In order to perform the clock frequency division we used the
-\texttt{frame_clocker} counter.
+\texttt{frame\_clocker} counter.
 The overflow of the counter is used to enable the accumulator, which must
 accumulate at a rate equal to the sampling one.
 The accumulation must occur at instants which are in the middle of two sample
-instants. For this reason, \texttt{frame_clocker} is reset to a value which is
+instants. For this reason, \texttt{frame\_clocker} is reset to a value which is
 half way between the initial value and the overflow value.

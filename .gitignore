@@ -6,3 +6,5 @@ vivado/
 
 report/*
 !report/*.tex
+!report/README.md
+!report/makefile
