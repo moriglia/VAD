@@ -55,8 +55,8 @@ rate. If we used a 16\si{\kilo\hertz} clock and after a frame is processed,
 another one followed, a clock cycle would be required for \texttt{FRAME\_START}.
 So we loose a clock cycle at every frame. In order to avoid so, we could use a
 faster clock and divide it, so that one short clock cycle is spent in resetting
-everithing at the \texttt{FRAME\_START}, but a more clock cycles are are
-available before the input sample changes.
+everithing at the \texttt{FRAME\_START}, but more clock cycles are
+available to process the current input sample before it changes.
 
 In order to perform the clock frequency division we used the
 \texttt{frame\_clocker} counter.

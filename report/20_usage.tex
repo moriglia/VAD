@@ -1,0 +1,16 @@
+\section{Usage}
+\begin{itemize}
+  \item In order to use the Voice Activity Detector component properly,
+        it must be clocked at 16\si{\mega\hertz}, while samples will be fed
+        into the VAD at a 16\si{\kilo\hertz} rate.
+  \item In order to start feeding a frame into the VAD,
+        \texttt{frame\_clock} must be raised and kept high for 1 clock cycle
+  \item After \texttt{frame\_clock} has been raised,
+        the first \texttt{x[15 downto 0]} input must be ready by
+        and kept at least until the 501th clock.
+  \item After the first sample, following samples must be ready by
+        and kept until the $(501 + 1000n)$-th clock cycle, where
+        $n = 1, \dots, N - 1$
+  \item The output will be ready after 255503 clock cycles after having raised
+        \texttt{frame\_clock} for one clock cycle.
+\end{itemize}

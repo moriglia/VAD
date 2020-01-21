@@ -7,4 +7,4 @@ default: clean report.pdf
 		pdflatex -interaction nonstopmode -output-format pdf -output-directory . $<
 
 clean:
-		rm *.aux *.log *.toc
+		rm -f $(shell find . -name '*.aux' -name '*.log' -name '*.toc')
