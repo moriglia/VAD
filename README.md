@@ -1,5 +1,11 @@
 # Voice Activity Detector
-University Project
+University Educational Project: implementation of a Voice Activity Detector.
+It has been assigned by Prof. L. Fanucci, teaching
+_Electronics and Communications Systems_
+for the Computer Engineering Master Courses
+and _Microelectronics for Telecommunications_
+for the Teleccomunications Engineering Master Courses,
+both at University of Pisa. The assegnees are Mancini R. and Origlia M.
 
 ## Testing
 ```bash
@@ -14,10 +20,7 @@ cd ../../ghdl
 make elaborate
 
 # run simulation
-ghdl -r vad_tb --fst=vad_tb.fst < samples.in > vad_tb.out
-
-# check the output
-diff ../hdl/utils/samples.out vad_tb.out
+ghdl -r vad_tb --fst=vad_tb.fst < samples.in | diff - samples.out
 
 # inspect waveforms
 gtkwave vad_tb.fst 2>/dev/null 1>&2 &
