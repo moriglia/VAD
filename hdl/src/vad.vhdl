@@ -107,7 +107,7 @@ architecture vad_rtl of vad is
   constant N_bit_frame : integer := 10;
   constant frame_tick_after_rst : std_logic_vector(9 downto 0) := std_logic_vector(to_unsigned(525, 10));
   constant frame_tick_after_ovf : std_logic_vector(9 downto 0) := std_logic_vector(to_unsigned(24, 10));
-  constant frame_counter_default : std_logic_vector(17 downto 0) := std_logic_vector(to_unsigned(6146, 18));
+  constant frame_counter_default : std_logic_vector(7 downto 0) := (others => '0');
 
   signal voice_detected     : std_logic;
 
@@ -167,7 +167,7 @@ architecture vad_rtl of vad is
 
     accumulator_reset <= resetn and not counter_tick;
 
-    accumulator_component : accumulator
+    energy_accumulator : accumulator
     generic map (
       Nbit    => 34,
       default => compl_threshold
@@ -192,16 +192,16 @@ architecture vad_rtl of vad is
       en => in_frame
     );
 
-    counter_component : counter
+    sample_counter : counter
     generic map (
-      Nbit  => 8+N_bit_frame,
+      Nbit  => 8,
       val_after_reset => frame_counter_default,
       val_after_ovf => frame_counter_default
     )
     port map (
       clk     => clk,
       resetn  => resetn,
-      enable  => in_frame,
+      enable  => frame_tick,
       ovf     => counter_tick
     );
 
