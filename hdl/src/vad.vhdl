@@ -45,6 +45,7 @@ architecture vad_rtl of vad is
       clk   : in std_logic;
       resetn: in std_logic;
       incr  : in std_logic_vector(Nbit - 1 downto 0);
+      restart : in std_logic; --synchronous reset
 
       en    : in    std_logic ;
 
@@ -63,6 +64,7 @@ architecture vad_rtl of vad is
       clk     : in std_logic;
       resetn  : in std_logic;
       enable  : in std_logic;
+      restart : in std_logic; --synchronous reset
 
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
@@ -83,23 +85,22 @@ architecture vad_rtl of vad is
     );
   end component dffe;
 
-  component srffe is
+  component srff is
     port(
         clk      : in    std_logic ;
         resetn   : in    std_logic ;
-        en       : in    std_logic ;
         s        : in    std_logic ;
         r        : in    std_logic ;
         q        : out   std_logic
     );
-  end component srffe;
+  end component srff;
 
+  signal accumulator_restart  : std_logic;
 
-  signal resetn   : std_logic;
-  signal accumulator_reset  : std_logic;
-
-  signal abs_repr           : std_logic_vector(14 downto 0);
-  signal square_power_repr  : std_logic_vector(33 downto 0);
+  signal abs_repr                     : std_logic_vector(14 downto 0);
+  signal abs_repr_memorized           : std_logic_vector(14 downto 0);
+  signal square_power_repr            : std_logic_vector(29 downto 0);
+  signal square_power_repr_memorized  : std_logic_vector(33 downto 0);
 
   constant compl_threshold  : std_logic_vector(33 downto 0) := "0011001100110011001100110011001101";
   constant eighteen_zeroes : std_logic_vector(17 downto 0) := (others => '0');
@@ -120,8 +121,6 @@ architecture vad_rtl of vad is
   signal vad_out_in : std_logic;
 
   begin
-    resetn <= rst_n and not FRAME_START;
-
     abs_component : absnetwork_approx
     generic map (
       Nbit => 16
@@ -131,25 +130,51 @@ architecture vad_rtl of vad is
       n_number    => abs_repr -- from 0 to 2^15 - 1
     );
 
+    abs_repr_memory : dffe
+    generic map (
+      Nbit => 15,
+      default => "000000000000000"
+    )
+    port map (
+      clk     => clk,
+      resetn  => rst_n,
+      en      => in_frame,
+      d       => abs_repr,
+      q       => abs_repr_memorized
+    );
+
     squarepowernet_component : squarepowernetwork_unsigned
     generic map (
       Nbit => 15
     )
     port map (
-      n_repr      => abs_repr,                      -- from 0 to 2^15 - 1
-      n_sq_repr   => square_power_repr(29 downto 0) -- from 0 to 2^30 - 2^16 + 1
+      n_repr      => abs_repr_memorized,  -- from 0 to 2^15-1
+      n_sq_repr   => square_power_repr    -- from 0 to 2^30
     );
 
-    square_power_repr(33 downto 30) <= (others => '0'); -- extend representation
+    square_power_repr_memory : dffe
+    generic map (
+      Nbit    => 30,
+      default => "000000000000000000000000000000"
+    )
+    port map (
+      clk     => clk,
+      resetn  => rst_n,
+      en      => in_frame,
+      d       => square_power_repr,
+      q       => square_power_repr_memorized(29 downto 0)
+    );
 
-    in_frame_srffe : srffe
+    -- extend representation
+    square_power_repr_memorized(33 downto 30) <= (others => '0');
+
+    in_frame_srff : srff
     port map (
       clk => clk,
       s => FRAME_START,
       r => counter_tick,
       resetn => rst_n,
-      q => in_frame,
-      en => '1'
+      q => in_frame
     );
 
     frame_clocker : counter
@@ -160,12 +185,13 @@ architecture vad_rtl of vad is
     )
     port map (
       clk     => clk,
-      resetn  => resetn,
+      resetn  => rst_n,
       enable  => in_frame,
-      ovf     => frame_tick
+      ovf     => frame_tick,
+      restart => FRAME_START
     );
 
-    accumulator_reset <= resetn and not counter_tick;
+    accumulator_restart <= FRAME_START or counter_tick;
 
     energy_accumulator : accumulator
     generic map (
@@ -174,22 +200,21 @@ architecture vad_rtl of vad is
     )
     port map (
     clk     => clk,
-    resetn  => accumulator_reset,
-    incr    => square_power_repr,  -- from 0 to 2^30 - 2^16 + 1
+    resetn  => rst_n,
+    incr    => square_power_repr_memorized,  -- from 0 to 2^30
     en      => frame_tick,
-
     q       => open,
-    ovf     => acc_ovf
+    ovf     => acc_ovf,
+    restart => accumulator_restart
     );
 
-    voice_detected_srffe : srffe
+    voice_detected_srff : srff
     port map (
       clk => clk,
       s => acc_ovf,
-      r => '0',
-      resetn => resetn,
-      q => voice_detected,
-      en => in_frame
+      r => FRAME_START,
+      resetn => rst_n,
+      q => voice_detected
     );
 
     sample_counter : counter
@@ -200,7 +225,8 @@ architecture vad_rtl of vad is
     )
     port map (
       clk     => clk,
-      resetn  => resetn,
+      resetn  => rst_n,
+      restart => FRAME_START,
       enable  => frame_tick,
       ovf     => counter_tick
     );

@@ -31,6 +31,7 @@ architecture behaviour of counter_tb is
       clk     : in std_logic;
       resetn  : in std_logic;
       enable  : in std_logic;
+      restart : in std_logic;
   
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
@@ -50,6 +51,7 @@ architecture behaviour of counter_tb is
       clk     => clk,
       resetn  => resetn,
       enable  => en_s,
+      restart  => '0',
 
       q       => q_s,
       ovf     => ovf_s

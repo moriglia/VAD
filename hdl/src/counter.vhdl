@@ -11,6 +11,7 @@ entity counter is
     clk     : in std_logic;
     resetn  : in std_logic;
     enable  : in std_logic;
+    restart : in std_logic; --synchronous reset
 
     q     : out std_logic_vector(Nbit - 1 downto 0);
     ovf   : out std_logic
@@ -18,19 +19,20 @@ entity counter is
 end entity counter;
 
 architecture counter_arch of counter is
-  component dffe is
+  component dffre is
     generic (
-      Nbit    : positive;
-      default : std_logic_vector
+        Nbit    : integer := 4;
+        default : std_logic_vector -- default value
     );
-    port (
-      clk     : in std_logic;
-      resetn  : in std_logic;
-      en      : in std_logic ;
-      d       : in std_logic_vector(Nbit - 1 downto 0);
-      q       : out std_logic_vector(Nbit - 1 downto 0)
+    port(
+        clk      : in    std_logic ;
+        resetn   : in    std_logic ;
+        en       : in    std_logic ;
+        r        : in    std_logic ;
+        d        : in    std_logic_vector(Nbit-1 downto 0) ;
+        q        : out   std_logic_vector(Nbit-1 downto 0)
     );
-  end component dffe;
+  end component dffre;
 
   component incrementer is
     generic (
@@ -45,15 +47,15 @@ architecture counter_arch of counter is
     );
   end component incrementer;
 
-  component mux is 
-    generic (N_mux : integer := 4);
+  component mux_2toN is 
+    generic (N : integer := 4);
     port(
-        in1_mux   : in    std_logic_vector(N_mux-1 downto 0) ;
-        in2_mux   : in    std_logic_vector(N_mux-1 downto 0) ;
-        s_mux     : in    std_logic ;
-        out_mux   : out   std_logic_vector(N_mux-1 downto 0) 
+        in0   : in    std_logic_vector(N-1 downto 0) ;
+        in1   : in    std_logic_vector(N-1 downto 0) ;
+        s     : in    std_logic ;
+        q     : out   std_logic_vector(N-1 downto 0) 
     );
-  end component mux;
+  end component mux_2toN;
 
   signal q_s    : std_logic_vector(Nbit - 1 downto 0);
   signal d_s    : std_logic_vector(Nbit - 1 downto 0);
@@ -62,7 +64,7 @@ architecture counter_arch of counter is
 
   begin
 
-    dff_comp : dffe
+    dff_comp : dffre
     generic map (
       Nbit => Nbit,
       default => val_after_reset
@@ -71,12 +73,13 @@ architecture counter_arch of counter is
       clk => clk,
       resetn => resetn,
       en => enable,
+      r => restart,
 
       d => d_in,
       q => q_s
     );
 
-    ovf_register : dffe
+    ovf_register : dffre
     generic map (
       Nbit => 1,
       default => "0"
@@ -85,6 +88,7 @@ architecture counter_arch of counter is
       clk => clk,
       resetn => resetn,
       en => enable,
+      r => restart,
 
       d(0) => ovf_s,  -- Assign a 1 bit std_logic_vector to a std_logic
       q(0) => ovf     -- Assign a 1 bit std_logic_vector to a std_logic
@@ -102,14 +106,14 @@ architecture counter_arch of counter is
       cout => ovf_s
     );
     
-    d_mux : mux
+    d_mux : mux_2toN
     generic map(
-      N_mux => Nbit
+      N => Nbit
     ) port map (
-      in1_mux => d_s,
-      in2_mux => val_after_ovf,
-      s_mux => ovf_s,
-      out_mux => d_in
+      in0 => d_s,
+      in1 => val_after_ovf,
+      s => ovf_s,
+      q => d_in
     );
 
     q <= q_s;
