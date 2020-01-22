@@ -141,7 +141,7 @@ architecture vad_rtl of vad is
 
     square_power_repr(33 downto 32) <= (others => '0'); -- extend representation
 
-    in_frame_srffe : srff
+    in_frame_srff : srff
     port map (
       clk => clk,
       s => FRAME_START,
@@ -180,7 +180,7 @@ architecture vad_rtl of vad is
     ovf     => acc_ovf
     );
 
-    voice_detected_srffe : srff
+    voice_detected_srff : srff
     port map (
       clk => clk,
       s => acc_ovf,
