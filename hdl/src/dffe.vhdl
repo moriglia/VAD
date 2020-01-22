@@ -29,15 +29,15 @@ architecture gen of dffe is
         );
     end component;
 
-    component mux is
-        generic (N_mux : integer := 4);
+    component mux_2toN is 
+        generic (N : integer := 4);
         port(
-            in1_mux   : in    std_logic_vector(N_mux-1 downto 0) ;
-            in2_mux   : in    std_logic_vector(N_mux-1 downto 0) ;
-            s_mux     : in    std_logic ;
-            out_mux   : out   std_logic_vector(N_mux-1 downto 0)
+            in0   : in    std_logic_vector(N-1 downto 0) ;
+            in1   : in    std_logic_vector(N-1 downto 0) ;
+            s     : in    std_logic ;
+            q     : out   std_logic_vector(N-1 downto 0) 
         );
-    end component;
+    end component mux_2toN;
 
     signal q_loop : std_logic_vector(Nbit-1 downto 0);
     signal mux_out : std_logic_vector(Nbit-1 downto 0);
@@ -47,8 +47,8 @@ begin
         port map (d => mux_out, clk => clk, resetn => resetn, q => q_loop);
 
 
-    m_mux : mux generic map (N_mux => Nbit)
-        port map (in1_mux => q_loop, in2_mux => d, s_mux => en, out_mux => mux_out);
+    m_mux : mux_2toN generic map (N => Nbit)
+        port map (in0 => q_loop, in1 => d, s => en, q => mux_out);
 
     q <= q_loop;
 end gen;

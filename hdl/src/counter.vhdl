@@ -45,15 +45,15 @@ architecture counter_arch of counter is
     );
   end component incrementer;
 
-  component mux is 
-    generic (N_mux : integer := 4);
+  component mux_2toN is 
+    generic (N : integer := 4);
     port(
-        in1_mux   : in    std_logic_vector(N_mux-1 downto 0) ;
-        in2_mux   : in    std_logic_vector(N_mux-1 downto 0) ;
-        s_mux     : in    std_logic ;
-        out_mux   : out   std_logic_vector(N_mux-1 downto 0) 
+        in0   : in    std_logic_vector(N-1 downto 0) ;
+        in1   : in    std_logic_vector(N-1 downto 0) ;
+        s     : in    std_logic ;
+        q     : out   std_logic_vector(N-1 downto 0) 
     );
-  end component mux;
+  end component mux_2toN;
 
   signal q_s    : std_logic_vector(Nbit - 1 downto 0);
   signal d_s    : std_logic_vector(Nbit - 1 downto 0);
@@ -102,14 +102,14 @@ architecture counter_arch of counter is
       cout => ovf_s
     );
     
-    d_mux : mux
+    d_mux : mux_2toN
     generic map(
-      N_mux => Nbit
+      N => Nbit
     ) port map (
-      in1_mux => d_s,
-      in2_mux => val_after_ovf,
-      s_mux => ovf_s,
-      out_mux => d_in
+      in0 => d_s,
+      in1 => val_after_ovf,
+      s => ovf_s,
+      q => d_in
     );
 
     q <= q_s;
