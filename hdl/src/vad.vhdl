@@ -95,8 +95,6 @@ architecture vad_rtl of vad is
     );
   end component srff;
 
-
-  signal resetn   : std_logic;
   signal accumulator_restart  : std_logic;
 
   signal abs_repr                     : std_logic_vector(15 downto 0);
@@ -139,7 +137,7 @@ architecture vad_rtl of vad is
     )
     port map (
       clk     => clk,
-      resetn  => resetn,
+      resetn  => rst_n,
       en      => in_frame,
       d       => abs_repr,
       q       => abs_repr_memorized
@@ -161,7 +159,7 @@ architecture vad_rtl of vad is
     )
     port map (
       clk     => clk,
-      resetn  => resetn,
+      resetn  => rst_n,
       en      => in_frame,
       d       => square_power_repr,
       q       => square_power_repr_memorized(31 downto 0)
