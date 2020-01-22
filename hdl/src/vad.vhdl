@@ -83,16 +83,15 @@ architecture vad_rtl of vad is
     );
   end component dffe;
 
-  component srffe is
+  component srff is
     port(
         clk      : in    std_logic ;
         resetn   : in    std_logic ;
-        en       : in    std_logic ;
         s        : in    std_logic ;
         r        : in    std_logic ;
         q        : out   std_logic
     );
-  end component srffe;
+  end component srff;
 
 
   signal resetn   : std_logic;
@@ -142,14 +141,13 @@ architecture vad_rtl of vad is
 
     square_power_repr(33 downto 32) <= (others => '0'); -- extend representation
 
-    in_frame_srffe : srffe
+    in_frame_srffe : srff
     port map (
       clk => clk,
       s => FRAME_START,
       r => counter_tick,
       resetn => rst_n,
-      q => in_frame,
-      en => '1'
+      q => in_frame
     );
 
     frame_clocker : counter
@@ -182,14 +180,13 @@ architecture vad_rtl of vad is
     ovf     => acc_ovf
     );
 
-    voice_detected_srffe : srffe
+    voice_detected_srffe : srff
     port map (
       clk => clk,
       s => acc_ovf,
       r => '0',
       resetn => resetn,
-      q => voice_detected,
-      en => in_frame
+      q => voice_detected
     );
 
     sample_counter : counter
