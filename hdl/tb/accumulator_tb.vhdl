@@ -29,6 +29,7 @@ architecture behaviour of accumulator_tb is
       resetn: in std_logic;
       incr  : in std_logic_vector(Nbit - 1 downto 0);
       en    : in    std_logic ;
+      restart    : in    std_logic ;
 
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
@@ -48,6 +49,7 @@ architecture behaviour of accumulator_tb is
       resetn => resetn,
       incr => incr_s,
       en => '1',
+      restart => '0',
 
       q => q_s,
       ovf => ovf_s

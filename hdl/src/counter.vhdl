@@ -11,6 +11,7 @@ entity counter is
     clk     : in std_logic;
     resetn  : in std_logic;
     enable  : in std_logic;
+    restart : in std_logic; --synchronous reset
 
     q     : out std_logic_vector(Nbit - 1 downto 0);
     ovf   : out std_logic
@@ -18,19 +19,20 @@ entity counter is
 end entity counter;
 
 architecture counter_arch of counter is
-  component dffe is
+  component dffre is
     generic (
-      Nbit    : positive;
-      default : std_logic_vector
+        Nbit    : integer := 4;
+        default : std_logic_vector -- default value
     );
-    port (
-      clk     : in std_logic;
-      resetn  : in std_logic;
-      en      : in std_logic ;
-      d       : in std_logic_vector(Nbit - 1 downto 0);
-      q       : out std_logic_vector(Nbit - 1 downto 0)
+    port(
+        clk      : in    std_logic ;
+        resetn   : in    std_logic ;
+        en       : in    std_logic ;
+        r        : in    std_logic ;
+        d        : in    std_logic_vector(Nbit-1 downto 0) ;
+        q        : out   std_logic_vector(Nbit-1 downto 0)
     );
-  end component dffe;
+  end component dffre;
 
   component incrementer is
     generic (
@@ -62,7 +64,7 @@ architecture counter_arch of counter is
 
   begin
 
-    dff_comp : dffe
+    dff_comp : dffre
     generic map (
       Nbit => Nbit,
       default => val_after_reset
@@ -71,12 +73,13 @@ architecture counter_arch of counter is
       clk => clk,
       resetn => resetn,
       en => enable,
+      r => restart,
 
       d => d_in,
       q => q_s
     );
 
-    ovf_register : dffe
+    ovf_register : dffre
     generic map (
       Nbit => 1,
       default => "0"
@@ -85,6 +88,7 @@ architecture counter_arch of counter is
       clk => clk,
       resetn => resetn,
       en => enable,
+      r => restart,
 
       d(0) => ovf_s,  -- Assign a 1 bit std_logic_vector to a std_logic
       q(0) => ovf     -- Assign a 1 bit std_logic_vector to a std_logic

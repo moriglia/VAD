@@ -7,11 +7,12 @@ entity accumulator is
     default : std_logic_vector
   );
   port (
-    clk   : in std_logic;
-    resetn: in std_logic;
-    incr  : in std_logic_vector(Nbit - 1 downto 0);
+    clk     : in std_logic;
+    resetn  : in std_logic; -- synchronous reset
+    restart : in std_logic;
+    incr    : in std_logic_vector(Nbit - 1 downto 0);
 
-    en    : in    std_logic ;
+    en      : in    std_logic ;
 
     q     : out std_logic_vector(Nbit - 1 downto 0);
     ovf   : out std_logic
@@ -19,19 +20,20 @@ entity accumulator is
 end entity accumulator;
 
 architecture accumulator_arch of accumulator is
-  component dffe is
+  component dffre is
     generic (
-        Nbit      : integer := 4;
-        default   : std_logic_vector);
+        Nbit    : integer := 4;
+        default : std_logic_vector -- default value
+    );
     port(
         clk      : in    std_logic ;
         resetn   : in    std_logic ;
         en       : in    std_logic ;
-
+        r        : in    std_logic ;
         d        : in    std_logic_vector(Nbit-1 downto 0) ;
         q        : out   std_logic_vector(Nbit-1 downto 0)
     );
-  end component dffe;
+  end component dffre;
 
   component rcadder is
     generic (
@@ -52,7 +54,7 @@ architecture accumulator_arch of accumulator is
 
   begin
 
-  dff_comp : dffe
+  dff_comp : dffre
   generic map (
     Nbit => Nbit,
     default => default
@@ -61,6 +63,7 @@ architecture accumulator_arch of accumulator is
     clk => clk,
     resetn => resetn,
     en => en,
+    r => restart,
 
     d => d_s,
     q => q_s

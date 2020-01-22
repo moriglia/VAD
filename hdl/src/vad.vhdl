@@ -45,6 +45,7 @@ architecture vad_rtl of vad is
       clk   : in std_logic;
       resetn: in std_logic;
       incr  : in std_logic_vector(Nbit - 1 downto 0);
+      restart : in std_logic; --synchronous reset
 
       en    : in    std_logic ;
 
@@ -63,6 +64,7 @@ architecture vad_rtl of vad is
       clk     : in std_logic;
       resetn  : in std_logic;
       enable  : in std_logic;
+      restart : in std_logic; --synchronous reset
 
       q     : out std_logic_vector(Nbit - 1 downto 0);
       ovf   : out std_logic
@@ -95,7 +97,7 @@ architecture vad_rtl of vad is
 
 
   signal resetn   : std_logic;
-  signal accumulator_reset  : std_logic;
+  signal accumulator_restart  : std_logic;
 
   signal abs_repr           : std_logic_vector(15 downto 0);
   signal square_power_repr  : std_logic_vector(33 downto 0);
@@ -119,8 +121,6 @@ architecture vad_rtl of vad is
   signal vad_out_in : std_logic;
 
   begin
-    resetn <= rst_n and not FRAME_START;
-
     abs_component : absnetwork
     generic map (
       Nbit => 16
@@ -158,12 +158,13 @@ architecture vad_rtl of vad is
     )
     port map (
       clk     => clk,
-      resetn  => resetn,
+      resetn  => rst_n,
       enable  => in_frame,
-      ovf     => frame_tick
+      ovf     => frame_tick,
+      restart => FRAME_START
     );
 
-    accumulator_reset <= resetn and not counter_tick;
+    accumulator_restart <= FRAME_START or counter_tick;
 
     energy_accumulator : accumulator
     generic map (
@@ -172,20 +173,20 @@ architecture vad_rtl of vad is
     )
     port map (
     clk     => clk,
-    resetn  => accumulator_reset,
+    resetn  => rst_n,
     incr    => square_power_repr,  -- from 0 to 2^30
     en      => frame_tick,
-
     q       => open,
-    ovf     => acc_ovf
+    ovf     => acc_ovf,
+    restart => accumulator_restart
     );
 
     voice_detected_srff : srff
     port map (
       clk => clk,
       s => acc_ovf,
-      r => '0',
-      resetn => resetn,
+      r => FRAME_START,
+      resetn => rst_n,
       q => voice_detected
     );
 
@@ -197,7 +198,8 @@ architecture vad_rtl of vad is
     )
     port map (
       clk     => clk,
-      resetn  => resetn,
+      resetn  => rst_n,
+      restart => FRAME_START,
       enable  => frame_tick,
       ovf     => counter_tick
     );
