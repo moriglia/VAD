@@ -83,23 +83,24 @@ architecture vad_rtl of vad is
     );
   end component dffe;
 
-  component srffe is
+  component srff is
     port(
         clk      : in    std_logic ;
         resetn   : in    std_logic ;
-        en       : in    std_logic ;
         s        : in    std_logic ;
         r        : in    std_logic ;
         q        : out   std_logic
     );
-  end component srffe;
+  end component srff;
 
 
   signal resetn   : std_logic;
   signal accumulator_reset  : std_logic;
 
-  signal abs_repr           : std_logic_vector(15 downto 0);
-  signal square_power_repr  : std_logic_vector(33 downto 0);
+  signal abs_repr                     : std_logic_vector(15 downto 0);
+  signal abs_repr_memorized           : std_logic_vector(15 downto 0);
+  signal square_power_repr            : std_logic_vector(31 downto 0);
+  signal square_power_repr_memorized  : std_logic_vector(33 downto 0);
 
   constant compl_threshold  : std_logic_vector(33 downto 0) := "0011001100110011001100110011001101";
   constant eighteen_zeroes : std_logic_vector(17 downto 0) := (others => '0');
@@ -131,25 +132,51 @@ architecture vad_rtl of vad is
       n_number    => abs_repr -- from 0 to 2^15
     );
 
+    abs_repr_memory : dffe
+    generic map (
+      Nbit => 16,
+      default => X"0000"
+    )
+    port map (
+      clk     => clk,
+      resetn  => resetn,
+      en      => in_frame,
+      d       => abs_repr,
+      q       => abs_repr_memorized
+    );
+
     squarepowernet_component : squarepowernetwork_unsigned
     generic map (
       Nbit => 16
     )
     port map (
-      n_repr      => abs_repr,                      -- from 0 to 2^15
-      n_sq_repr   => square_power_repr(31 downto 0) -- from 0 to 2^30
+      n_repr      => abs_repr_memorized,  -- from 0 to 2^15
+      n_sq_repr   => square_power_repr    -- from 0 to 2^30
     );
 
-    square_power_repr(33 downto 32) <= (others => '0'); -- extend representation
+    square_power_repr_memory : dffe
+    generic map (
+      Nbit    => 32,
+      default => X"00000000"
+    )
+    port map (
+      clk     => clk,
+      resetn  => resetn,
+      en      => in_frame,
+      d       => square_power_repr,
+      q       => square_power_repr_memorized(31 downto 0)
+    );
 
-    in_frame_srffe : srffe
+    -- extend representation
+    square_power_repr_memorized(33 downto 32) <= (others => '0');
+
+    in_frame_srffe : srff
     port map (
       clk => clk,
       s => FRAME_START,
       r => counter_tick,
       resetn => rst_n,
-      q => in_frame,
-      en => '1'
+      q => in_frame
     );
 
     frame_clocker : counter
@@ -175,21 +202,20 @@ architecture vad_rtl of vad is
     port map (
     clk     => clk,
     resetn  => accumulator_reset,
-    incr    => square_power_repr,  -- from 0 to 2^30
+    incr    => square_power_repr_memorized,  -- from 0 to 2^30
     en      => frame_tick,
 
     q       => open,
     ovf     => acc_ovf
     );
 
-    voice_detected_srffe : srffe
+    voice_detected_srffe : srff
     port map (
       clk => clk,
       s => acc_ovf,
       r => '0',
       resetn => resetn,
-      q => voice_detected,
-      en => in_frame
+      q => voice_detected
     );
 
     sample_counter : counter
