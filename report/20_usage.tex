@@ -1,7 +1,10 @@
 \section{Usage}
 \begin{itemize}
   \item In order to use the Voice Activity Detector component properly,
-        it must be clocked at 16\si{\mega\hertz}, while samples will be fed
+        it must be clocked at 16\si{\mega\hertz}\footnote{This value has been 
+        arbitrarily chosen since it was not stated in the requirements. However, 
+        changing the operating frequency is pretty straightforward since it implies
+        just changing the default value of the frame clocker.}, while samples will be fed
         into the VAD at a 16\si{\kilo\hertz} rate.
   \item In order to start feeding a frame into the VAD,
         \texttt{frame\_clock} must be raised and kept high for 1 clock cycle
