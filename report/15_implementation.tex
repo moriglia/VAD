@@ -106,6 +106,8 @@ can see the following components:
 \begin{itemize}
   \item \textbf{dff\_comp}: a \emph{DFFRE} that holds the current state of the 
     accumulator. It is enabled if and only if the accumulator is enabled.
+  \item \textbf{ovf\_register}: a \emph{DFFRE} that buffers the overflow of the 
+    \emph{rcadder\_comp}. It is enabled if and only if the accumulator is enabled.
   \item \textbf{rcadder\_comp}: a \emph{ripple-carry adder} that adds the input
     \emph{incr} to the content of \emph{dff\_comp}. The overflow output is 
     direcly connected with the output port.
