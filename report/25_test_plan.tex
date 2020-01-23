@@ -1,7 +1,21 @@
-\section{Test Plan}
+\section{Testing}
+
+\subsection{Tools}
+The following software or languages has been used for testing, simulation or
+implementation purposes.
+
+\begin{itemize}
+  \item \texttt{ghdl}: HDL synax, analysis, elaboration and simulation
+  \item \texttt{make}: task automation
+  \item \texttt{python}: test case generation
+  \item \texttt{Xilinx Vivado}: implementation, performance statistics
+\end{itemize}
+
+\subsection{Testing environment}
+
 Commands in this section are supposed to be typed in a bash or dash shell.
 
-\paragraph{The testbench} iteratively takes a string representing a 10 base
+\paragraph{The testbench} iteratively takes a string representing a base-10
 integer from the standard input. Each integer is interpreted
 as one of the input bit vector \texttt{x(15 downto 0)}. The testbench feeds an
 instantiation of the VAD with these 16 bit vectors, which will accumulate them.
@@ -28,6 +42,8 @@ string will be streamed to the standard output.
     -n,--sample-count n=256             Generate n samples per frame
     -c,--frame-count k=1                Generate samples for k frames
     -b,--bits b=16                      Generate samples in C2 on b bits
+    -m,--mean-energy 5250               Use the mean m for the expovariate
+                                        ditribution    
 \end{verbatim}
 }
 
@@ -37,9 +53,9 @@ The recommended usage of the script is the following:
 \end{verbatim}
 This command will create the samples for 10 frames and write them to the
 \texttt{samples.in} text file. Each sample will be written on a different line
-and it will be in the 10 base representation.
+and it will be in the base-10 representation.
 
-On the other hand il will output 0 or 1 for each frame of 256 samples, depending
+On the other hand, it will output 0 or 1 for each frame of 256 samples, depending
 on whether the expected VAD output should be 0 or 1. These outputs, one for each
 frame, will be written to the \texttt{samples.out} text file.
 
