@@ -1,17 +1,17 @@
 \section{Introduction}
 
-This project is an assignment by Prof. Fanucci to Mancini and Origlia.
-The purpose of the project is to practice electronics design using
-the hardware description language VHDL and Vivado, after attending the courses
-of \textit{Electronics and communications systems} at the Computer Engineering
-Master Degree Courses (for Mancini) and \textit{Microelecronics for telecommunications}
-at the Telecommunications Engineering Master Degree (for Origlia).
+% This project is an assignment by Prof. Fanucci to Mancini and Origlia.
+% The purpose of the project is to practice electronics design using
+% the hardware description language VHDL and Vivado, after attending the courses
+% of \textit{Electronics and communications systems} at the Computer Engineering
+% Master Degree Courses (for Mancini) and \textit{Microelecronics for telecommunications}
+% at the Telecommunications Engineering Master Degree (for Origlia).
 
 The assignment consists of the design of a Voice Activity Detector (VAD), a
 system that takes an audio stream as input and it outputs a logical value that
 indicates whether the voice is present or absent.
 
-\subsection*{Specifications}
+\subsection{Specifications}
 \begin{itemize}
   \item The input stream is divided in frames of duration
   $T_{frame} = 16\si{\milli\second}$
@@ -32,3 +32,10 @@ indicates whether the voice is present or absent.
     low otherwise.
   \end{itemize}
 \end{itemize}
+
+\begin{figure}[]
+  \centering
+  \includegraphics[width=0.75\textwidth]{figs/vad_schematic.png}
+  \caption{Schematic for the VAD component}
+  \label{fig:schematic}
+\end{figure}
