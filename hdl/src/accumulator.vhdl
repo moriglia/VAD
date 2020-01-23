@@ -51,6 +51,7 @@ architecture accumulator_arch of accumulator is
 
   signal q_s : std_logic_vector(Nbit - 1 downto 0);
   signal d_s : std_logic_vector(Nbit - 1 downto 0);
+  signal ovf_s : std_logic;
 
   begin
 
@@ -79,7 +80,22 @@ architecture accumulator_arch of accumulator is
     cin => '0',
 
     s => d_s,
-    cout => ovf
+    cout => ovf_s
+  );
+
+  ovf_register : dffre
+  generic map (
+    Nbit => 1,
+    default => "0"
+  )
+  port map (
+    clk => clk,
+    resetn => resetn,
+    en => en,
+    r => restart,
+
+    d(0) => ovf_s,  -- Assign a 1 bit std_logic_vector to a std_logic
+    q(0) => ovf     -- Assign a 1 bit std_logic_vector to a std_logic
   );
 
   q <= q_s;
