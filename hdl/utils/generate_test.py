@@ -20,7 +20,7 @@ usage = f"""{sys.argv[0]} [ -s|--sample-file <sample_file> |--stdout ]
     -n,--sample-count n=256             Generate n samples per frame
     -c,--frame-count k=1                Generate samples for k frames
     -b,--bits b=16                      Generate samples in C2 on b bits
-    -m,--mean m=5250                    Use the mean m for the expovariate
+    -m,--mean-energy 5250               Use the mean m for the expovariate
                                         ditribution
 """
 
@@ -34,7 +34,7 @@ try:
             "sample-count=",
             "frame-count="
             "bits=",
-            "mean="
+            "mean-energy="
         ]
     )
 except getopt.GetoptError as err:
@@ -46,7 +46,7 @@ output_file = False
 N = 256
 K = 1
 bits = 16
-mean = 5250  # Empirical
+mean_energy = 53687091  # Very close to threshold
 
 for opt, val in opts:
     if opt in ("-h", "--help"):
@@ -66,8 +66,8 @@ for opt, val in opts:
         K = int(val)
     elif opt in ("-b", "--bits"):
         bits = int(val)
-    elif opt in ("-m", "--mean"):
-        mean = float(val)
+    elif opt in ("-m", "--mean-energy"):
+        mean_energy = float(val)
 
 if sample_file:
     sf = open(sample_file, "w")
@@ -83,7 +83,8 @@ for k in range(K):
 
     # ... generate N samples
     for i in range(N):
-        sample = round(random.choice([-1, 1])*random.expovariate(1/mean))
+        sample_energy = random.expovariate(1/mean_energy)
+        sample = random.choice([-1, 1])*round(sample_energy**0.5)
 
         # Truncate the sample if out of range
         if sample >= 2**(bits-1):
