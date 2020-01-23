@@ -1,0 +1,27 @@
+\section{Implementation}
+TODO:
+
+\begin{itemize}
+  \item Schematic
+  \item details about chosen implementation
+  \item details about DFFE and DFFRE
+  \item details about SRFF
+  \item details about counter and accumulator
+\end{itemize}
+
+\subsection{Clock and sampling}
+The sampling rate is 16\si{\kilo\hertz}, but we can process the data at a faster
+rate. If we used a 16\si{\kilo\hertz} clock and after a frame is processed,
+another one followed, a clock cycle would be required for \texttt{FRAME\_START}.
+So we loose a clock cycle at every frame. In order to avoid so, we could use a
+faster clock and divide it, so that one short clock cycle is spent in resetting
+everithing at the \texttt{FRAME\_START}, but more clock cycles are
+available to process the current input sample before it changes.
+
+In order to perform the clock frequency division we used the
+\texttt{frame\_clocker} counter.
+The overflow of the counter is used to enable the accumulator, which must
+accumulate at a rate equal to the sampling one.
+The accumulation must occur at instants which are in the middle of two sample
+instants. For this reason, \texttt{frame\_clocker} is reset to a value which is
+half way between the initial value and the overflow value.
