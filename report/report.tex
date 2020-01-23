@@ -1,8 +1,11 @@
-\documentclass[a4paper]{article}
+\documentclass[10pt]{article}
+\usepackage[a4paper, margin=1.5in]{geometry}
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+
+\usepackage{graphicx}
 
 \usepackage{siunitx}
 \usepackage{latexsym}
@@ -14,13 +17,22 @@
 \date{2019 - 2020}
 
 \begin{document}
-\maketitle
-\tableofcontents
 
-\input{05_introduction.tex}
-\input{10_formal_analysis.tex}
-\input{15_hardware_description.tex}
-\input{17_tools.tex}
-\input{20_usage.tex}
-\input{25_test_plan.tex}
+\pagenumbering{gobble}
+\maketitle
+\vfill
+% \setcounter{tocdepth}{1}
+\tableofcontents
+\vfill
+\clearpage
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\include{05_introduction}
+\include{10_formal_analysis}
+\include{15_hardware_description}
+\include{17_tools}
+\include{20_usage}
+\include{25_test_plan}
+
 \end{document}
