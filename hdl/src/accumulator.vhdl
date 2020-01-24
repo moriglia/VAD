@@ -35,19 +35,18 @@ architecture accumulator_arch of accumulator is
     );
   end component dffre;
 
-  component rcadder is
+  component rtl_adder is
     generic (
       Nbit : positive
     );
     port (
       a     : in std_logic_vector(Nbit - 1 downto 0);
       b     : in std_logic_vector(Nbit - 1 downto 0);
-      cin   : in std_logic;
 
       s     : out std_logic_vector(Nbit - 1 downto 0);
       cout  : out std_logic
     );
-  end component rcadder;
+  end component rtl_adder;
 
   signal q_s : std_logic_vector(Nbit - 1 downto 0);
   signal d_s : std_logic_vector(Nbit - 1 downto 0);
@@ -70,14 +69,13 @@ architecture accumulator_arch of accumulator is
     q => q_s
   );
 
-  rcadder_comp : rcadder
+  rcadder_comp : rtl_adder
   generic map (
     Nbit => Nbit
   )
   port map (
     a => incr,
     b => q_s,
-    cin => '0',
 
     s => d_s,
     cout => ovf_s
