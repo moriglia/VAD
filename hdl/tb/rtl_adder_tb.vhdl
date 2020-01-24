@@ -2,10 +2,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity rcadder_tb is
-end entity rcadder_tb;
+entity rtl_adder_tb is
+end entity rtl_adder_tb;
 
-architecture rcadder_tb_arch of rcadder_tb is
+architecture rtl_adder_tb_arch of rtl_adder_tb is
   constant N : positive := 3 ;
 
   signal a : std_logic_vector(N - 1 downto 0);
@@ -15,7 +15,7 @@ architecture rcadder_tb_arch of rcadder_tb is
   signal s : std_logic_vector(N - 1 downto 0);
   signal cout : std_logic;
 
-  component rcadder is
+  component rtl_adder is
     generic (
       Nbit : positive
     );
@@ -26,12 +26,12 @@ architecture rcadder_tb_arch of rcadder_tb is
       s     : out std_logic_vector(Nbit - 1 downto 0);
       cout  : out std_logic
     );
-  end component rcadder;
+  end component rtl_adder;
 
 
   begin
 
-    rcaut : rcadder
+    rcaut : rtl_adder
     generic map (
       Nbit => N
     )
@@ -43,7 +43,6 @@ architecture rcadder_tb_arch of rcadder_tb is
       cout => cout
     );
 
-    
     stimulus : process
     begin
       a <= std_logic_vector(to_unsigned(3, N));
@@ -81,4 +80,4 @@ architecture rcadder_tb_arch of rcadder_tb is
     end process stimulus;
 
 
-  end architecture rcadder_tb_arch;
+  end architecture rtl_adder_tb_arch;

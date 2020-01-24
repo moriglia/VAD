@@ -8,7 +8,6 @@ entity rcadder is
   port (
     a     : in std_logic_vector(Nbit - 1 downto 0);
     b     : in std_logic_vector(Nbit - 1 downto 0);
-    cin   : in std_logic;
 
     s     : out std_logic_vector(Nbit - 1 downto 0);
     cout  : out std_logic
@@ -38,7 +37,7 @@ architecture rcadder_arch of rcadder is
         port map (
           a => a(0),
           b => b(0),
-          cin => cin,
+          cin => '0',
 
           s => s(0),
           cout => carry(1)
