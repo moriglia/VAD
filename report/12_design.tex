@@ -12,18 +12,18 @@ and then propose some optimizations (\ref{sec:optimizations}).
   \label{fig:simple_schematic}
 \end{figure}
 
-\cref{fig:simple_schematic} shows the high-level concept of the design, where we 
+\cref{fig:simple_schematic} shows the high-level concept of the design, where we
 can see:
 \begin{itemize}
-  \item \texttt{absnetwork}: a combinatorial network that extracts $|z|$. Both 
-    its input and its output have 16 bits since its maximum value is $2^{15}$. 
-    In \cref{sec:opt-abs}, we will evaluate whether to use an approximated 
+  \item \texttt{absnetwork}: a combinatorial network that extracts $|z|$. Both
+    its input and its output have 16 bits since its maximum value is $2^{15}$.
+    In \cref{sec:opt-abs}, we will evaluate whether to use an approximated
     but more efficient \texttt{absnetwork} that does not sum 1 to the complement.
   \item \texttt{squarepowernetwork}: a combinatorial network that evaluates
-    $|z|^2$ on 32 bits. Note that, 31 bits would be enough since 
+    $|z|^2$ on 32 bits. Note that, 31 bits would be enough since
     $|z|^2 \le (2^{15})^2 = 2^{30}$.
   \item \texttt{accumulator}: performs the recursive sum $S[n] = |z[n]|^2 + S[n - 1]$.
-    The maximum sum value is $N \cdot 2^{30} = 256 \cdot 2^{30} = 2^{38}$, 
+    The maximum sum value is $N \cdot 2^{30} = 256 \cdot 2^{30} = 2^{38}$,
     requiring 39 bits.
   \item \texttt{comparator}: combinatorial network that compares the output
     of the \texttt{accumulator} with $E_{th}'$, which must be represented on 39
@@ -59,37 +59,38 @@ of the frame processing and eventually set by $ovf[n]$.
 \subsubsection{Absolute value}
 \label{sec:opt-abs}
 
-Calling Z the representation of $z[n]$ on 16 bits, we have that:
+Calling $Z$ the representation of $z[n]$ on 16 bits and $Z_a$ the representation
+of $|z[n]|$ on 16 bits as well, we have that:
 \begin{equation}
-  |Z| = \begin{cases}
+  Z_a = \begin{cases}
     Z & z[n] \ge 0 \\
     \bar{Z}+1 & z[n] < 0
   \end{cases}
 \end{equation}
 where $\bar{Z}$ is the complement of $Z$.
 
-In order to simplify it, we could avoid adding 1 in the lower branch, achieving 
-two optimizations: a lower number of bits for the output (15 vs 16) and a 
+In order to simplify it, we could avoid adding 1 in the lower branch, achieving
+two optimizations: a lower number of bits for the output (15 vs 16) and a
 simpler logic.
 
 \begin{equation}
-  |Z| \simeq \begin{cases}
+  Z_a \simeq \widetilde{Z}_a = \begin{cases}
     Z & z[n] \ge 0 \\
     \bar{Z} & z[n] < 0
   \end{cases}
 \end{equation}
 
-This approximation introduces an error on the energy of the sample. 
+This approximation introduces an error on the energy of the sample.
 This error for negative $x[n]$ can be evaluated as
 \begin{equation}
-  \epsilon[n] = |z[n]|^2 - \tilde{z}^2[n] = (\bar{Z}[n] + 1)^2 - \bar{Z}^2[n] = 2\bar{Z}[n] + 1
+  \epsilon[n] = |z[n]|^2 - \tilde{z}^2[n] = Z_a^2 - \widetilde{Z}_a^2 = (\bar{Z}[n] + 1)^2 - \bar{Z}^2[n] = 2\bar{Z}[n] + 1
 \end{equation}
 The worst error we can make on one sample corresponds to $\bar{Z}[n] = 2^{15}$
-so $\epsilon_{max} = 2^{16}+1$, which translates to a maximum error on the total 
-energy of $256 \cdot \epsilon_{max} \simeq 2^{24}$, which is $\sim 0.12\%$ of the 
-threshold. 
+so $\epsilon_{max} = 2^{16}+1$, which translates to a maximum error on the total
+energy of $256 \cdot \epsilon_{max} \simeq 2^{24}$, which is $\sim 0.12\%$ of the
+threshold.
 
-In conclusion, the approximation can be safely introduced in order to save 
+In conclusion, the approximation can be safely introduced in order to save
 resources on the FPGA.
 
 \subsection{Clock and sampling}
@@ -101,8 +102,8 @@ faster clock and divide it, so that one short clock cycle is spent in resetting
 everithing at the \texttt{FRAME\_START}, but more clock cycles are
 available to process the current input sample before it changes.
 
-In order to perform the clock frequency division a properly configured counter 
-has been used. The overflow of the counter is used to enable the accumulator, 
+In order to perform the clock frequency division a properly configured counter
+has been used. The overflow of the counter is used to enable the accumulator,
 which must accumulate at a rate equal to the sampling one.
 The accumulation should occur at instants which are in the middle of two sample
 instants in order to improve reliability.
