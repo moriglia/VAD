@@ -191,8 +191,6 @@ architecture vad_rtl of vad is
       restart => FRAME_START
     );
 
-    accumulator_restart <= FRAME_START or counter_tick;
-
     energy_accumulator : accumulator
     generic map (
       Nbit    => 34,
@@ -205,7 +203,7 @@ architecture vad_rtl of vad is
     en      => frame_tick,
     q       => open,
     ovf     => acc_ovf,
-    restart => accumulator_restart
+    restart => FRAME_START
     );
 
     voice_detected_srff : srff
@@ -214,7 +212,7 @@ architecture vad_rtl of vad is
       s => acc_ovf,
       r => FRAME_START,
       resetn => rst_n,
-      q => voice_detected
+      q => vad_out
     );
 
     sample_counter : counter
@@ -230,24 +228,4 @@ architecture vad_rtl of vad is
       enable  => frame_tick,
       ovf     => counter_tick
     );
-
-    -- keep vad_out until next frame starts
-    vad_out_in <= (not FRAME_START) and voice_detected;
-    en_vad_out <= FRAME_START or counter_tick;
-
-    vad_out_register  : dffe
-    generic map (
-      Nbit => 1,
-      default => "0"
-    )
-    port map (
-      clk     => clk,
-      resetn  => rst_n,
-      en      => en_vad_out,
-
-      d(0)    => vad_out_in,
-      q(0)    => vad_out
-    );
-
-
   end architecture vad_rtl;
