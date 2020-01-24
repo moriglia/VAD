@@ -1,0 +1,44 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper, margin=1.5in]{geometry}
+\usepackage{parskip}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{graphicx}
+
+\usepackage{siunitx}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\usepackage{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+
+\title{Voice Activity Detector \protect\\ VHDL Project Report}
+\author{Riccardo Mancini, Marco Origlia}
+\date{2019 - 2020}
+
+\begin{document}
+
+\pagenumbering{gobble}
+\maketitle
+\vfill
+% \setcounter{tocdepth}{1}
+\tableofcontents
+\vfill
+\clearpage
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\include{05_introduction}
+\include{10_formal_analysis}
+\include{12_design}
+\include{15_implementation}
+% \include{17_tools}
+\include{20_usage}
+\include{25_test_plan}
+\include{30_synthesis}
+
+\end{document}

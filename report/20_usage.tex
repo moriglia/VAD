@@ -1,0 +1,25 @@
+\section{Usage}
+\begin{itemize}
+  \item In order to use the Voice Activity Detector component properly,
+        it must be clocked at 16\si{\mega\hertz}\footnote{This value has been
+        arbitrarily chosen since it was not stated in the requirements. However,
+        changing the operating frequency is pretty straightforward since it implies
+        just changing the default value of the frame clocker.}, while samples will be fed
+        into the VAD at a 16\si{\kilo\hertz} rate.
+  \item In order to start feeding a frame into the VAD,
+        \texttt{frame\_start} must be raised and kept high for 1 clock cycle
+  \item After \texttt{frame\_start} has been raised,
+        the first \texttt{x[15 downto 0]} input must be ready by
+        and kept at least until the 499th clock.
+  \item After the first sample, following samples must be ready by
+        and kept until the $(499 + 1000n)$-th clock cycle, where
+        $n = 1, \dots, N - 1$
+  \item As soon as the threshold is exceeded the output will be raised.
+        This means that for early detection (before remaining samples are
+        processed) the output of the VAD can be sampled at the
+        $(503 + 1000n)$-th clock cycle, with $n = 13, \dots, N - 1$. With fewer
+        than 13 samples the partial energy can't be greater than the threshold.
+        The output will be ready at last in 255503 clock cycles after having
+        raised \texttt{frame\_start} for one clock cycle and will not change
+        later on until a new frame is fed into the VAD.
+\end{itemize}

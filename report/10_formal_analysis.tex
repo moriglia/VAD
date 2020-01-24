@@ -1,0 +1,41 @@
+\section{Formal analysis}
+The problem we must solve is to tell whether:
+\begin{equation}
+  E_{th} \le \frac{1}{N} \sum_{n=1}^N x^2[n]
+\end{equation}
+Since $ x[n] \in [-1, 1) $ and it is represented on 16 bits, it can be
+written as
+\begin{equation}
+  x[n] = z[n]\cdot LSB
+\end{equation}
+where $z[n] \in [-2^{15}, 2^{15} - 1]$ and $LSB = \frac{1}{2^{15}}$. Therefore we
+can equivalently check that:
+\begin{equation}
+  \sum_{n=1}^N |z[n]|^2 \ge \frac{N \cdot E_{th}}{LSB^2} = E_{th}'
+\end{equation}
+Since the sampling rate is $f_s$ and the frame duration is $T_{frame}$,
+we can easily compute the number of samples per frame:
+$N = \frac{T_{frame}}{1/f_s} = 16\si{\milli\second} \cdot 16\si{\kilo\hertz} = 256$
+and hence $E_{th}' = 13743895347$.
+
+% TODO: move to optimization section
+% \paragraph{Absolute value} of $z > 0$ is $Z$, which is also the representation
+% of $z$ if it is represented using the 2 complement on 16 bits. We note that
+% $Z(15) = 0$ because $z > 0$.
+
+% If $z < 0$, $|z|$ is represented by $\bar{Z} + 1$, with $Z\in[2^{15}, 2^{16}-1]$.
+% So $\bar{Z} + 1 \in [1, 2^{15}]$, which requires 16 bits to be represented.
+% We could approximate the representation of $|z|$ with $\bar{Z}$ for negative $z$,
+% so the representation would require only 15 bits, as in the case of $z > 0$.
+
+% We could hence use only 15 bits to represent $|z|$ for all cases.
+
+Finally, note that, since data comes in serially, the component just needs to 
+keep a partial sum of the squares of the samples.
+
+\begin{equation}
+  \begin{cases}
+    S[n] = |z[n]|^2 + S[n - 1] \\
+    S[0] = 0
+  \end{cases}
+\end{equation}
