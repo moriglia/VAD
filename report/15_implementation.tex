@@ -30,6 +30,7 @@ In brief, the main building blocks are:
   \item \textbf{absnetwork}: performs the absolute value.
   \item \textbf{absnetwork\_approx}: performs the absolute value using the approximation
     of \cref{sec:opt-abs}.
+  \item \textbf{rtl\_adder}: performs the sum of two unsigned numbers.
 \end{itemize}
 
 \subsection{VAD}
@@ -40,24 +41,17 @@ The VAD is made of the following components:
     This componet's output serves as the enabler of the \emph{frame\_counter}
     and all pipeline registers.
   \item \textbf{frame\_clocker}: this \emph{counter} is the frequency divider 
-    that ticks at the half of every frame. It's output enables the 
+    that ticks at the middle of every frame. It's output enables the 
     \emph{sample\_counter} and the \emph{energy\_accumulator}.
-  \item \textbf{sample\_counter}: this \emph{counter} counts the number of frames
-    and, when the sample ends, it sends a signal to reset the \emph{in\_frame\_srff},
-    change the output (enabling the \emph{vad\_out\_register}) and reset the 
-    accumulator.
+  \item \textbf{sample\_counter}: this \emph{counter} counts the number of samples
+    and, when the frame ends, it sends a signal to reset the \emph{in\_frame\_srff}.
   \item \textbf{energy\_accumulator}: this \emph{accumulator} sums up the 
     squares of the input samples and overflows once the energy threshold is 
-    trespassed. It is resetted at the beginning and end of a frame.
+    trespassed. It is resetted at the beginning of every frame.
   \item \textbf{voice\_detected\_srff}: this \emph{SRFF} is set when the 
     \emph{energy\_accumulator} overflows, signaling the trespassing of the 
     energy threshold and, hence, the detection of voice in the signal. It is 
-    reset with \texttt{FRAME\_START}.
-  \item \textbf{vad\_out\_register}: this \emph{DFFE} is enabled at either 
-    \texttt{FRAME\_START} or the \emph{sample\_counter} tick so that output 
-    is changed when the frame ends (setting it to either 1 or 0 depending on 
-    whether voice was detected or not) and when a new one starts (resetting the 
-    output to 0).
+    reset with \texttt{FRAME\_START}. It is directly connected to the output.
   \item \textbf{abs\_component}: performs the absolute value.
   \item \textbf{squarepowernet\_component}: performs the squaring.
   \item \textbf{abs\_repr\_memory} and \textbf{square\_power\_repr\_memory}: 
