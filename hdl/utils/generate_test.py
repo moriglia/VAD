@@ -20,7 +20,7 @@ usage = f"""{sys.argv[0]} [ -s|--sample-file <sample_file> |--stdout ]
     -n,--sample-count n=256             Generate n samples per frame
     -c,--frame-count k=1                Generate samples for k frames
     -b,--bits b=16                      Generate samples in C2 on b bits
-    -m,--mean-energy 5250               Use the mean m for the expovariate
+    -m,--mean-energy 53687091           Use the mean m for the expovariate
                                         ditribution
 """
 
