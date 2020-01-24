@@ -133,3 +133,11 @@ chooses the input to the DFF depending on the value of the \emph{enable} and
 
 When the flip-flop is reset, by either using \emph{rst\_n} or \emph{r}, its
 content will be reset to a predefined value, that can be set as a parameter.
+
+\subsection{Pipeline registers}
+\label{sec:pipeline}
+
+The registers \textbf{abs\_repr\_memory} and \textbf{square\_power\_repr\_memory}
+were added as pipeline registers to split the long combinatorial chain. This 
+reduces the critical path and the power consumption of the component since 
+oscillations in the input are not propagated through the entire chain.
