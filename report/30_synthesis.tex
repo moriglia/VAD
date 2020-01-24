@@ -51,9 +51,12 @@ The power report has been generated in Vivado using the default settings.
         \textbf{Resource} & \textbf{Utilization} & 
         \textbf{Utilization ``opt''} & \textbf{Difference} & 
         \textbf{Available}\\\hline
-        LUT & 118  (0.67\%) & ???  (??.??\%) & 0 & 17600 \\\hline
-        FF  &  74  (0.21\%) & ???  (??.??\%) & 0 & 35200 \\\hline
-        DSP &   1  (1.25\%) & ???  (??.??\%) & 0 &    80 \\\hline
-        IO  &  20 (20.00\%) & ???  (??.??\%) & 0 &   100 \\\hline
+        LUT & 118  (0.67\%) & 110   (0.63\%) & \textbf{8} & 17600 \\\hline
+        FF  &  74  (0.21\%) &  73   (0.21\%) & \textbf{1} & 35200 \\\hline
+        DSP &   1  (1.25\%) &   1   (1.25\%) & 0          &    80 \\\hline
+        IO  &  20 (20.00\%) &  20  (20.00\%) & 0          &   100 \\\hline
     \end{tabular}\vspace*{\baselineskip}
 \end{center}
+
+From the utilization we can see how 8 LUTs would be saved if we used the 
+approximation of the absolute value.
