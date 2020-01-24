@@ -38,7 +38,7 @@ The VAD is made of the following components:
 \begin{itemize}
   \item \textbf{in\_frame\_srff}: this \emph{SRFF} is set by \texttt{FRAME\_START} when
     the frame is started and is reset when the frame ends (see \emph{sample\_counter}).
-    This componet's output serves as the enabler of the \emph{frame\_counter}
+    This component's output serves as the enabler of the \emph{frame\_counter}
     and all pipeline registers.
   \item \textbf{frame\_clocker}: this \emph{counter} is the frequency divider
     that ticks at the middle of every frame. It's output enables the
@@ -47,7 +47,7 @@ The VAD is made of the following components:
     and, when the frame ends, it sends a signal to reset the \emph{in\_frame\_srff}.
   \item \textbf{energy\_accumulator}: this \emph{accumulator} sums up the
     squares of the input samples and overflows once the energy threshold is
-    trespassed. It is resetted at the beginning of every frame.
+    trespassed. It is reset at the beginning of every frame.
   \item \textbf{voice\_detected\_srff}: this \emph{SRFF} is set when the
     \emph{energy\_accumulator} overflows, signaling the trespassing of the
     energy threshold and, hence, the detection of voice in the signal. It is
@@ -104,7 +104,7 @@ can see the following components:
     \emph{rcadder\_comp}. It is enabled if and only if the accumulator is enabled.
   \item \textbf{rcadder\_comp}: a \emph{ripple-carry adder} that adds the input
     \emph{incr} to the content of \emph{dff\_comp}. The overflow output is
-    direcly connected with the output port.
+    directly connected with the output port.
 \end{itemize}
 
 Furthermore, it is important to note that the default value after reset
